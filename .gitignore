@@ -1,0 +1,7 @@
+.env
+temp/*
+!temp/.gitkeep
+salidas/*.pptx
+__pycache__/
+*.pyc
+.streamlit/secrets.toml
