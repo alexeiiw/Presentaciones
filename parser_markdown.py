@@ -20,6 +20,7 @@ class Clase:
     universidad: str = ""
     estilo: str = "academico_formal"
     imagen_universidad: str = ""
+    logo_portada: str = ""
     agenda: list[str] = field(default_factory=list)
     contenido_presentacion: list[str] = field(default_factory=list)
     aprendizajes: list[str] = field(default_factory=list)
@@ -69,6 +70,9 @@ def parsear_markdown(texto: str) -> Clase:
             continue
         if linea.startswith("Imagen Universidad:") or linea.startswith("Imagen Portada:"):
             clase.imagen_universidad = linea.split(":", 1)[1].strip()
+            continue
+        if linea.startswith("Logo Universidad:") or linea.startswith("Logo Portada:"):
+            clase.logo_portada = linea.split(":", 1)[1].strip()
             continue
         if linea.startswith("Frase Final:"):
             clase.frase_final = linea.split(":", 1)[1].strip()

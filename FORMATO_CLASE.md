@@ -10,6 +10,7 @@ Asignatura: Nombre de la asignatura
 Universidad: Nombre de la universidad
 Estilo: tecnologico_oscuro
 Imagen Portada: assets/imagen_universidad.jpg
+Logo Portada: assets/logo_universidad.png
 
 Agenda:
 - Bienvenida y contexto de la semana
@@ -60,6 +61,7 @@ Imagen: programming code
 
 - `# Clase:` define el titulo de la presentacion.
 - `Imagen Portada:` o `Imagen Universidad:` puede ser una ruta local como `assets/universidad_umg.jpg`, solo el nombre como `universidad_umg.jpg`, o una busqueda para Pexels/Pixabay.
+- `Logo Portada:` o `Logo Universidad:` puede ser una ruta local como `assets/logo_umg.png` o solo el nombre como `logo_umg.png` si esta dentro de `assets/`.
 - `Agenda:` crea una diapositiva automatica con puntos de clase.
 - `Contenido Presentacion:` crea una diapositiva automatica con la estructura del material.
 - `Aprendizajes:` alimenta la diapositiva final de cierre.

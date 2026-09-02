@@ -32,13 +32,14 @@ def generar_presentacion(
     imagenes_usadas: set[str] = set()
 
     imagen_portada = _resolver_imagen(clase.imagen_universidad, modo_imagen, imagenes_usadas)
-    _crear_portada(prs, clase, estilo, imagen_portada)
+    logo_portada = _resolver_imagen(clase.logo_portada, modo_imagen, imagenes_usadas)
+    _crear_portada(prs, clase, estilo, imagen_portada, logo_portada)
     if clase.agenda:
-        _crear_diapositiva_lista(prs, "Agenda de la clase", clase.agenda, estilo, "Lo que veremos hoy")
+        _crear_diapositivas_lista(prs, "Agenda de la clase", clase.agenda, estilo, "Lo que veremos hoy", max_por_slide=7)
 
     contenido = clase.contenido_presentacion or [d.titulo for d in clase.diapositivas]
     if contenido:
-        _crear_diapositiva_lista(prs, "Contenido de la presentacion", contenido, estilo, "Estructura del material")
+        _crear_diapositivas_lista(prs, "Contenido de la presentacion", contenido, estilo, "Estructura del material", max_por_slide=10)
 
     for indice, diapositiva in enumerate(clase.diapositivas):
         imagen = _resolver_imagen(diapositiva.imagen, modo_imagen, imagenes_usadas)
@@ -58,22 +59,25 @@ def generar_presentacion(
     return salida
 
 
-def _crear_portada(prs: Presentation, clase: Clase, estilo: EstiloPresentacion, imagen: Path | None = None) -> None:
+def _crear_portada(prs: Presentation, clase: Clase, estilo: EstiloPresentacion, imagen: Path | None = None, logo: Path | None = None) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
 
     if imagen:
-        _imagen_cover(slide, imagen, Inches(8.55), Inches(0), Inches(4.78), ALTO)
-        overlay = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(8.55), Inches(0), Inches(4.78), ALTO)
+        _imagen_cover(slide, imagen, Inches(8.35), Inches(0), Inches(4.98), ALTO)
+        overlay = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(8.35), Inches(0), Inches(4.98), ALTO)
         overlay.fill.solid()
         overlay.fill.fore_color.rgb = estilo.fondo_secundario
-        overlay.fill.transparency = 0.18
+        overlay.fill.transparency = 0.28
         overlay.line.fill.background()
     else:
         _agregar_banda_visual(slide, estilo)
 
+    if logo:
+        _imagen_contain(slide, logo, Inches(0.82), Inches(0.55), Inches(1.6), Inches(0.95))
+
     tam_titulo = 38 if len(clase.titulo) > 55 else 42
-    _texto(slide, clase.titulo, Inches(0.8), Inches(1.35), Inches(8.15), Inches(2.6), tam_titulo, estilo.titulo, estilo.fuente_titulo, negrita=True)
+    _texto(slide, clase.titulo, Inches(0.8), Inches(1.55), Inches(7.7), Inches(2.35), tam_titulo, estilo.titulo, estilo.fuente_titulo, negrita=True)
     subtitulo = " | ".join(x for x in [clase.asignatura, clase.universidad] if x)
     if subtitulo:
         _texto(slide, subtitulo, Inches(0.85), Inches(4.15), Inches(7.7), Inches(0.8), 17, estilo.texto, estilo.fuente_texto)
@@ -81,7 +85,14 @@ def _crear_portada(prs: Presentation, clase: Clase, estilo: EstiloPresentacion, 
         _texto(slide, clase.profesor, Inches(0.85), Inches(6.05), Inches(6.4), Inches(0.4), 16, estilo.acento, estilo.fuente_texto)
 
 
-def _crear_diapositiva_lista(prs: Presentation, titulo: str, items: list[str], estilo: EstiloPresentacion, subtitulo: str = "") -> None:
+def _crear_diapositivas_lista(prs: Presentation, titulo: str, items: list[str], estilo: EstiloPresentacion, subtitulo: str = "", max_por_slide: int = 10) -> None:
+    for pagina, inicio in enumerate(range(0, len(items), max_por_slide), start=1):
+        bloque = items[inicio : inicio + max_por_slide]
+        titulo_pagina = titulo if len(items) <= max_por_slide else f"{titulo} ({pagina})"
+        _crear_diapositiva_lista(prs, titulo_pagina, bloque, estilo, subtitulo, inicio)
+
+
+def _crear_diapositiva_lista(prs: Presentation, titulo: str, items: list[str], estilo: EstiloPresentacion, subtitulo: str = "", offset: int = 0) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
     _texto(slide, titulo, Inches(0.65), Inches(0.45), Inches(11.6), Inches(0.8), 32, estilo.titulo, estilo.fuente_titulo, negrita=True)
@@ -89,14 +100,16 @@ def _crear_diapositiva_lista(prs: Presentation, titulo: str, items: list[str], e
     if subtitulo:
         _texto(slide, subtitulo, Inches(0.7), Inches(1.55), Inches(10.8), Inches(0.4), 15, estilo.texto, estilo.fuente_texto)
 
-    columnas = 2 if len(items) > 6 else 1
-    ancho = Inches(5.7 if columnas == 2 else 10.8)
-    for idx, item in enumerate(items[:12]):
+    columnas = 2 if len(items) > 7 else 1
+    ancho = Inches(5.5 if columnas == 2 else 10.8)
+    alto = Inches(0.68 if columnas == 2 else 0.58)
+    salto_y = Inches(0.86 if columnas == 2 else 0.72)
+    for idx, item in enumerate(items):
         col = idx % columnas
         fila = idx // columnas
         x = Inches(0.8) + col * Inches(6.0)
-        y = Inches(2.15) + fila * Inches(0.72)
-        _tarjeta_item(slide, idx + 1, item, estilo, x, y, ancho, Inches(0.52))
+        y = Inches(2.15) + fila * salto_y
+        _tarjeta_item(slide, offset + idx + 1, item, estilo, x, y, ancho, alto)
 
 
 def _crear_diapositiva_cierre(prs: Presentation, aprendizajes: list[str], frase: str, estilo: EstiloPresentacion) -> None:
@@ -120,7 +133,8 @@ def _tarjeta_item(slide, numero: int, texto: str, estilo: EstiloPresentacion, x,
     caja.fill.solid()
     caja.fill.fore_color.rgb = estilo.caja
     caja.line.color.rgb = estilo.acento
-    _texto(slide, f"{numero:02d}. {texto}", x + Inches(0.16), y + Inches(0.08), w - Inches(0.28), h - Inches(0.08), 15, estilo.texto, estilo.fuente_texto)
+    tam = 12 if len(texto) > 70 else 14
+    _texto(slide, f"{numero:02d}. {texto}", x + Inches(0.16), y + Inches(0.08), w - Inches(0.28), h - Inches(0.08), tam, estilo.texto, estilo.fuente_texto)
 
 
 def _aprendizajes_desde_diapositivas(diapositivas: list[Diapositiva]) -> list[str]:
@@ -333,6 +347,18 @@ def _imagen_cover(slide, ruta: Path, x, y, w, h) -> None:
         crop = max(0, (img_h - visible_h) / (2 * img_h))
         pic.crop_top = crop
         pic.crop_bottom = crop
+
+
+def _imagen_contain(slide, ruta: Path, x, y, w, h) -> None:
+    with Image.open(ruta) as img:
+        img_w, img_h = img.size
+
+    escala = min(w / img_w, h / img_h)
+    final_w = int(img_w * escala)
+    final_h = int(img_h * escala)
+    final_x = x + int((w - final_w) / 2)
+    final_y = y + int((h - final_h) / 2)
+    slide.shapes.add_picture(str(ruta), final_x, final_y, width=final_w, height=final_h)
 
 
 def _limpiar_texto(texto: str) -> str:
