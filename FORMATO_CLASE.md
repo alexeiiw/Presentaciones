@@ -38,7 +38,7 @@ Imagen: programming code
 ## Reglas
 
 - `# Clase:` define el titulo de la presentacion.
-- `Estilo:` puede ser `academico_formal`, `tecnologico_oscuro` o `alto_impacto`.
+- `Estilo:` puede ser `academico_formal`, `tecnologico_oscuro`, `alto_impacto`, `ingenieria_codigo`, `pizarra_matematica`, `laboratorio_redes`, `ciberseguridad` o `minimalista_claro`.
 - Cada diapositiva empieza con `## Diapositiva:`.
 - `Objetivo:` es opcional, pero recomendado.
 - `Contenido:` contiene bullets iniciados con `-`.

@@ -2,6 +2,8 @@
 temp/*
 !temp/.gitkeep
 salidas/*.pptx
+biblioteca_imagenes/imagenes/*
+!biblioteca_imagenes/imagenes/.gitkeep
 __pycache__/
 *.pyc
 .streamlit/secrets.toml

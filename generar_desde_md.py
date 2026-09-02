@@ -15,8 +15,14 @@ def main() -> None:
     parser.add_argument(
         "--modo-imagen",
         default="pexels_o_diseno",
-        choices=["pexels_o_diseno", "pexels", "solo_diseno", "sin_imagen"],
+        choices=["biblioteca_pexels_pixabay", "biblioteca_pexels", "pexels_pixabay", "pexels_o_diseno", "pexels", "pixabay", "solo_biblioteca", "solo_diseno", "sin_imagen"],
         help="Estrategia para insertar imagenes.",
+    )
+    parser.add_argument(
+        "--distribucion",
+        default="alternada",
+        choices=["alternada", "fija", "aleatoria_controlada"],
+        help="Estrategia de posicion para cada diapositiva.",
     )
     args = parser.parse_args()
 
@@ -28,6 +34,7 @@ def main() -> None:
         Path(args.salida),
         estilo_nombre=args.estilo,
         modo_imagen=args.modo_imagen,
+        distribucion=args.distribucion,
     )
     print(f"Presentacion generada: {salida}")
 

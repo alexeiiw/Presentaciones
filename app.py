@@ -49,26 +49,74 @@ st.set_page_config(page_title="Generador de Presentaciones", page_icon="PPTX", l
 st.title("Generador de presentaciones academicas")
 st.caption("Pega una clase en Markdown, selecciona estilo y genera un archivo .pptx.")
 
+if "markdown_clase" not in st.session_state:
+    st.session_state.markdown_clase = EJEMPLO
+
+
+def limpiar_contenido() -> None:
+    st.session_state.markdown_clase = ""
+
 with st.sidebar:
     st.header("Configuracion")
     nombre_archivo = st.text_input("Nombre del archivo", value="presentacion_clase")
-    estilo = st.selectbox("Estilo visual", ["academico_formal", "tecnologico_oscuro", "alto_impacto"], index=1)
-    modo_imagen = st.selectbox("Modo de imagen", ["pexels_o_diseno", "pexels", "solo_diseno", "sin_imagen"], index=0)
+    estilo = st.selectbox(
+        "Estilo visual",
+        [
+            "academico_formal",
+            "tecnologico_oscuro",
+            "alto_impacto",
+            "ingenieria_codigo",
+            "pizarra_matematica",
+            "laboratorio_redes",
+            "ciberseguridad",
+            "minimalista_claro",
+        ],
+        index=1,
+    )
+    modo_imagen = st.selectbox(
+        "Modo de imagen",
+        [
+            "biblioteca_pexels_pixabay",
+            "biblioteca_pexels",
+            "pexels_pixabay",
+            "pexels_o_diseno",
+            "pexels",
+            "pixabay",
+            "solo_biblioteca",
+            "solo_diseno",
+            "sin_imagen",
+        ],
+        index=0,
+    )
+    distribucion = st.selectbox("Distribucion", ["alternada", "fija", "aleatoria_controlada"], index=0)
     pexels_key = st.text_input("PEXELS_API_KEY", value=os.getenv("PEXELS_API_KEY", ""), type="password")
+    pixabay_key = st.text_input("PIXABAY_API_KEY", value=os.getenv("PIXABAY_API_KEY", ""), type="password")
     if pexels_key.strip():
         os.environ["PEXELS_API_KEY"] = pexels_key.strip()
-    st.info("Puedes pegar la clave aqui o configurarla como variable de entorno del Codespace.")
+    if pixabay_key.strip():
+        os.environ["PIXABAY_API_KEY"] = pixabay_key.strip()
+    st.info("Puedes pegar las claves aqui o configurarlas como variables de entorno del Codespace.")
 
-markdown = st.text_area("Contenido de la clase en Markdown", value=EJEMPLO, height=560)
+markdown = st.text_area("Contenido de la clase en Markdown", key="markdown_clase", height=560)
 
-if st.button("Generar presentacion", type="primary"):
+col1, col2 = st.columns([1, 1])
+generar = col1.button("Generar presentacion", type="primary")
+col2.button("Limpiar contenido", on_click=limpiar_contenido)
+
+if generar:
     if not markdown.strip():
         st.error("Pega el contenido de la clase antes de generar.")
     else:
         try:
             clase = parsear_markdown(markdown)
             salida = Path("salidas") / f"{nombre_archivo.strip() or 'presentacion_clase'}.pptx"
-            ruta = generar_presentacion(clase, salida, estilo_nombre=estilo, modo_imagen=modo_imagen)
+            ruta = generar_presentacion(
+                clase,
+                salida,
+                estilo_nombre=estilo,
+                modo_imagen=modo_imagen,
+                distribucion=distribucion,
+            )
             st.success(f"Presentacion generada: {ruta}")
             with open(ruta, "rb") as archivo:
                 st.download_button(

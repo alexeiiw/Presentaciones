@@ -1,6 +1,6 @@
 # Presentaciones
 
-Generador de presentaciones academicas de alto impacto usando Python, Streamlit, python-pptx y Pexels.
+Generador de presentaciones academicas de alto impacto usando Python, Streamlit, python-pptx, biblioteca local de imagenes, Pexels y Pixabay.
 
 ## Instalacion en GitHub Codespaces
 
@@ -10,21 +10,25 @@ pip install -r requirements.txt
 
 ## Configuracion de Pexels
 
-La aplicacion lee la clave desde la variable `PEXELS_API_KEY`.
+La aplicacion lee las claves desde variables de entorno.
 
-En desarrollo local puedes usar el archivo `.env`.
+Crea un archivo `.env` en la raiz del proyecto, basado en `.env.example`:
 
 ```bash
 PEXELS_API_KEY=tu_clave
+PIXABAY_API_KEY=tu_clave
 ```
 
 En Codespaces tambien puedes exportarla antes de ejecutar la app:
 
 ```bash
 export PEXELS_API_KEY="tu_clave"
+export PIXABAY_API_KEY="tu_clave"
 ```
 
-Tambien puedes pegar la clave directamente en la barra lateral de la interfaz web.
+Tambien puedes pegar las claves directamente en la barra lateral de la interfaz web.
+
+Mas detalle en `CONFIGURACION.md`.
 
 ## Ejecutar interfaz web
 
@@ -43,16 +47,70 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 - Pega el Markdown de la clase.
 - Selecciona estilo visual.
 - Selecciona modo de imagen.
+- Selecciona distribucion de diapositivas.
 - Genera y descarga el archivo `.pptx`.
 - El archivo tambien queda guardado dentro de `salidas/`.
 
 ## Modos de imagen
 
+- `biblioteca_pexels_pixabay`: busca primero en biblioteca local, luego Pexels y luego Pixabay.
+- `biblioteca_pexels`: busca primero en biblioteca local y luego Pexels.
+- `pexels_pixabay`: busca en Pexels y luego Pixabay sin consultar biblioteca local.
 - `pexels_o_diseno`: intenta Pexels y si falla crea diseno visual.
 - `pexels`: intenta Pexels y si falla deja el area sin imagen.
+- `pixabay`: intenta Pixabay y si falla crea diseno visual.
+- `solo_biblioteca`: usa solo imagenes locales guardadas.
 - `solo_diseno`: no usa API, crea diseno visual.
 - `sin_imagen`: genera solo contenido textual.
+
+## Biblioteca de imagenes
+
+Las imagenes descargadas se guardan localmente en `biblioteca_imagenes/imagenes/` y se registran en `biblioteca_imagenes/index.json` para reutilizarlas en futuras presentaciones.
+
+Por defecto, las imagenes descargadas no se suben a GitHub para evitar que el repositorio crezca demasiado.
+
+## Distribuciones
+
+- `alternada`: cambia imagen derecha/izquierda de forma ordenada.
+- `fija`: mantiene el mismo layout en todas las diapositivas.
+- `aleatoria_controlada`: varia el layout con una secuencia controlada.
+
+## Estilos
+
+- `academico_formal`
+- `tecnologico_oscuro`
+- `alto_impacto`
+- `ingenieria_codigo`
+- `pizarra_matematica`
+- `laboratorio_redes`
+- `ciberseguridad`
+- `minimalista_claro`
 
 ## Formato de entrada
 
 Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
+
+## Historial de Cambios
+
+### v0.3
+
+- Se agrego Pixabay como proveedor secundario de imagenes.
+- Se agrego biblioteca local para reutilizar imagenes descargadas.
+- Se agrego selector de distribucion: fija, alternada y aleatoria controlada.
+- Se agrego boton para limpiar contenido en la interfaz.
+- Se agregaron nuevos estilos visuales.
+- Se documento `CONFIGURACION.md` para claves locales.
+
+### v0.2
+
+- Se mejoro el layout para titulos largos.
+- Se agrego ingreso de API key desde la interfaz.
+- Se agrego limpieza basica de Markdown y LaTeX.
+
+### v0.1
+
+- Primera version del generador.
+- Interfaz Streamlit.
+- Integracion inicial con Pexels.
+- Soporte Markdown.
+- Soporte para diapositivas con codigo.

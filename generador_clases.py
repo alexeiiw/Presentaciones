@@ -1,4 +1,5 @@
 from pathlib import Path
+import random
 import re
 
 from PIL import Image
@@ -7,9 +8,10 @@ from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.util import Inches, Pt
 
+from biblioteca_imagenes import buscar_en_biblioteca, guardar_en_biblioteca
 from estilos import EstiloPresentacion, obtener_estilo
 from parser_markdown import Clase, Diapositiva
-from proveedores_imagenes import obtener_imagen
+from proveedores_imagenes import obtener_imagen, proveedores_desde_modo
 
 
 ANCHO = Inches(13.333)
@@ -20,24 +22,24 @@ def generar_presentacion(
     clase: Clase,
     salida: Path,
     estilo_nombre: str | None = None,
-    modo_imagen: str = "pexels_o_diseno",
-    proveedor_imagen: str = "pexels",
+    modo_imagen: str = "biblioteca_pexels_pixabay",
+    distribucion: str = "alternada",
 ) -> Path:
     prs = Presentation()
     prs.slide_width = ANCHO
     prs.slide_height = ALTO
     estilo = obtener_estilo(estilo_nombre or clase.estilo)
+    imagenes_usadas: set[str] = set()
 
     _crear_portada(prs, clase, estilo)
-    for diapositiva in clase.diapositivas:
-        imagen = None
-        if modo_imagen in {"pexels", "pexels_o_diseno"} and diapositiva.imagen:
-            imagen = obtener_imagen(diapositiva.imagen, Path("temp") / "imagenes", proveedor_imagen)
+    for indice, diapositiva in enumerate(clase.diapositivas):
+        imagen = _resolver_imagen(diapositiva.imagen, modo_imagen, imagenes_usadas)
+        layout = _layout_para_diapositiva(indice, distribucion)
 
         if diapositiva.tipo == "codigo" or diapositiva.codigo:
-            _crear_diapositiva_codigo(prs, diapositiva, estilo, imagen, modo_imagen)
+            _crear_diapositiva_codigo(prs, diapositiva, estilo, imagen, modo_imagen, layout)
         else:
-            _crear_diapositiva_contenido(prs, diapositiva, estilo, imagen, modo_imagen)
+            _crear_diapositiva_contenido(prs, diapositiva, estilo, imagen, modo_imagen, layout)
 
     salida.parent.mkdir(parents=True, exist_ok=True)
     prs.save(salida)
@@ -58,28 +60,67 @@ def _crear_portada(prs: Presentation, clase: Clase, estilo: EstiloPresentacion) 
         _texto(slide, clase.profesor, Inches(0.85), Inches(6.05), Inches(6.4), Inches(0.4), 16, estilo.acento, estilo.fuente_texto)
 
 
-def _crear_diapositiva_contenido(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion, imagen: Path | None, modo_imagen: str) -> None:
+def _resolver_imagen(keyword: str, modo_imagen: str, imagenes_usadas: set[str]) -> Path | None:
+    if not keyword or modo_imagen in {"solo_diseno", "sin_imagen"}:
+        return None
+
+    if "biblioteca" in modo_imagen:
+        local = buscar_en_biblioteca(keyword, imagenes_usadas)
+        if local:
+            imagenes_usadas.add(str(local))
+            return local
+
+    proveedores = proveedores_desde_modo(modo_imagen)
+    if not proveedores:
+        return None
+
+    resultado = obtener_imagen(keyword, Path("temp") / "imagenes", proveedores, imagenes_usadas)
+    if not resultado:
+        return None
+
+    ruta, proveedor, url = resultado
+    guardada = guardar_en_biblioteca(keyword, ruta, proveedor, url)
+    imagenes_usadas.add(str(guardada))
+    return guardada
+
+
+def _layout_para_diapositiva(indice: int, distribucion: str) -> str:
+    if distribucion == "fija":
+        return "imagen_derecha"
+    if distribucion == "aleatoria_controlada":
+        return random.choice(["imagen_derecha", "imagen_izquierda"])
+    return "imagen_izquierda" if indice % 2 else "imagen_derecha"
+
+
+def _crear_diapositiva_contenido(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion, imagen: Path | None, modo_imagen: str, layout: str) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
 
+    if layout == "imagen_izquierda":
+        texto_x = Inches(5.85)
+        imagen_x = Inches(0)
+    else:
+        texto_x = Inches(0.55)
+        imagen_x = Inches(8.05)
+
     tam_titulo = 26 if len(d.titulo) > 42 else 30
-    _texto(slide, d.titulo, Inches(0.55), Inches(0.25), Inches(7.0), Inches(1.15), tam_titulo, estilo.titulo, estilo.fuente_titulo, negrita=True)
-    _linea_acento(slide, estilo, Inches(0.55), Inches(1.48), Inches(1.5))
+    _texto(slide, d.titulo, texto_x, Inches(0.25), Inches(7.0), Inches(1.15), tam_titulo, estilo.titulo, estilo.fuente_titulo, negrita=True)
+    _linea_acento(slide, estilo, texto_x, Inches(1.48), Inches(1.5))
 
     if imagen:
-        _imagen_cover(slide, imagen, Inches(8.05), Inches(0.0), Inches(5.28), ALTO)
-    elif modo_imagen in {"pexels_o_diseno", "solo_diseno"}:
-        _fallback_visual(slide, estilo, Inches(8.05), Inches(0.0), Inches(5.28), ALTO)
+        _imagen_cover(slide, imagen, imagen_x, Inches(0.0), Inches(5.28), ALTO)
+    elif modo_imagen in {"pexels_o_diseno", "solo_diseno", "biblioteca_pexels_pixabay", "biblioteca_pexels", "pexels_pixabay", "solo_biblioteca", "pixabay"}:
+        _fallback_visual(slide, estilo, imagen_x, Inches(0.0), Inches(5.28), ALTO)
 
     y = Inches(1.72)
     if d.objetivo:
-        _caja_objetivo(slide, d.objetivo, estilo, Inches(0.55), y, Inches(6.9), Inches(0.9))
+        _caja_objetivo(slide, d.objetivo, estilo, texto_x, y, Inches(6.9), Inches(0.9))
         y = Inches(2.82)
 
-    _bullets(slide, d.contenido[:6], Inches(0.75), y, Inches(6.55), Inches(3.95), estilo)
+    _bullets(slide, d.contenido[:6], texto_x + Inches(0.2), y, Inches(6.55), Inches(3.95), estilo)
 
 
-def _crear_diapositiva_codigo(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion, imagen: Path | None, modo_imagen: str) -> None:
+def _crear_diapositiva_codigo(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion, imagen: Path | None, modo_imagen: str, layout: str) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
     tam_titulo = 25 if len(d.titulo) > 48 else 28
@@ -94,7 +135,7 @@ def _crear_diapositiva_codigo(prs: Presentation, d: Diapositiva, estilo: EstiloP
 
     if imagen:
         _imagen_cover(slide, imagen, Inches(8.2), Inches(1.35), Inches(4.65), Inches(5.45))
-    elif modo_imagen in {"pexels_o_diseno", "solo_diseno"}:
+    elif modo_imagen in {"pexels_o_diseno", "solo_diseno", "biblioteca_pexels_pixabay", "biblioteca_pexels", "pexels_pixabay", "solo_biblioteca", "pixabay"}:
         _fallback_visual(slide, estilo, Inches(8.2), Inches(1.35), Inches(4.65), Inches(5.45))
 
 
