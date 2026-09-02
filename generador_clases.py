@@ -47,6 +47,8 @@ def generar_presentacion(
 
         if diapositiva.tipo == "codigo" or diapositiva.codigo:
             _crear_diapositiva_codigo(prs, diapositiva, estilo, imagen, modo_imagen, layout)
+        elif diapositiva.tipo == "seccion" or _es_diapositiva_solo_titulo(diapositiva):
+            _crear_diapositiva_seccion(prs, diapositiva, estilo, imagen, modo_imagen)
         elif diapositiva.tipo in {"columnas", "ruta", "frase", "diagrama", "actividad", "repositorio"}:
             _crear_diapositiva_avanzada(prs, diapositiva, estilo, imagen, modo_imagen)
         else:
@@ -196,6 +198,10 @@ def _layout_para_diapositiva(indice: int, distribucion: str) -> str:
     return "imagen_izquierda" if indice % 2 else "imagen_derecha"
 
 
+def _es_diapositiva_solo_titulo(d: Diapositiva) -> bool:
+    return not d.objetivo and not d.contenido and not d.codigo and not d.imagen
+
+
 def _crear_diapositiva_contenido(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion, imagen: Path | None, modo_imagen: str, layout: str) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
@@ -258,6 +264,29 @@ def _crear_diapositiva_avanzada(prs: Presentation, d: Diapositiva, estilo: Estil
         _crear_diapositiva_repositorio(prs, d, estilo)
 
 
+def _crear_diapositiva_seccion(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion, imagen: Path | None, modo_imagen: str) -> None:
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    _pintar_fondo(slide, estilo.fondo)
+    if imagen:
+        _imagen_cover(slide, imagen, Inches(0), Inches(0), ANCHO, ALTO)
+        overlay = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, ANCHO, ALTO)
+        overlay.fill.solid()
+        overlay.fill.fore_color.rgb = RGBColor(0, 0, 0)
+        overlay.fill.transparency = 0.42
+        overlay.line.fill.background()
+        color_titulo = RGBColor(255, 255, 255)
+        color_texto = RGBColor(235, 235, 245)
+    else:
+        _agregar_banda_visual(slide, estilo)
+        color_titulo = estilo.titulo
+        color_texto = estilo.texto
+
+    _texto(slide, "Nueva seccion", Inches(0.9), Inches(1.55), Inches(5.5), Inches(0.45), 16, estilo.acento, estilo.fuente_texto, negrita=True)
+    _texto(slide, d.titulo, Inches(0.9), Inches(2.05), Inches(8.8), Inches(1.7), 38, color_titulo, estilo.fuente_titulo, negrita=True)
+    subtitulo = d.objetivo or "Conectemos el bloque anterior con el siguiente tema tecnico."
+    _texto(slide, subtitulo, Inches(0.95), Inches(4.15), Inches(7.8), Inches(0.75), 18, color_texto, estilo.fuente_texto)
+
+
 def _crear_diapositiva_columnas(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
@@ -278,18 +307,22 @@ def _crear_diapositiva_ruta(prs: Presentation, d: Diapositiva, estilo: EstiloPre
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
     _encabezado(slide, d, estilo)
-    items = (d.contenido or [d.objetivo])[:5]
+    items = [item for item in (d.contenido or [d.objetivo]) if item][:5]
     for idx, item in enumerate(items):
-        x = Inches(0.85 + idx * 2.45)
-        y = Inches(3.05 if idx % 2 == 0 else 2.25)
+        x = Inches(0.55 + idx * 2.55)
+        y = Inches(2.55 if idx % 2 == 0 else 3.25)
+        tarjeta = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, y + Inches(0.78), Inches(2.15), Inches(2.15))
+        tarjeta.fill.solid()
+        tarjeta.fill.fore_color.rgb = estilo.caja
+        tarjeta.line.color.rgb = estilo.acento
         circulo = slide.shapes.add_shape(MSO_SHAPE.OVAL, x, y, Inches(0.82), Inches(0.82))
         circulo.fill.solid()
         circulo.fill.fore_color.rgb = estilo.acento
         circulo.line.fill.background()
         _texto(slide, str(idx + 1), x + Inches(0.25), y + Inches(0.15), Inches(0.3), Inches(0.3), 16, RGBColor(255, 255, 255), estilo.fuente_texto, negrita=True)
-        _texto(slide, item, x - Inches(0.1), y + Inches(1.0), Inches(2.0), Inches(1.15), 13, estilo.texto, estilo.fuente_texto)
+        _texto_ajustado(slide, item, x + Inches(0.18), y + Inches(1.05), Inches(1.78), Inches(1.55), estilo.texto, estilo.fuente_texto, base=12)
         if idx < len(items) - 1:
-            _linea_acento(slide, estilo, x + Inches(0.85), y + Inches(0.38), Inches(1.35))
+            _linea_acento(slide, estilo, x + Inches(0.85), y + Inches(0.38), Inches(1.45))
 
 
 def _crear_diapositiva_frase(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion, imagen: Path | None, modo_imagen: str) -> None:
@@ -315,21 +348,21 @@ def _crear_diapositiva_diagrama(prs: Presentation, d: Diapositiva, estilo: Estil
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
     _encabezado(slide, d, estilo)
-    items = (d.contenido or [d.objetivo])[:6]
-    centro_x, centro_y = Inches(5.75), Inches(3.35)
-    centro = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, centro_x, centro_y, Inches(1.9), Inches(0.9))
+    items = [item for item in (d.contenido or [d.objetivo]) if item][:6]
+    centro_x, centro_y = Inches(4.75), Inches(3.15)
+    centro = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, centro_x, centro_y, Inches(3.7), Inches(1.15))
     centro.fill.solid()
     centro.fill.fore_color.rgb = estilo.acento
     centro.line.fill.background()
-    _texto(slide, d.titulo[:34], centro_x + Inches(0.15), centro_y + Inches(0.18), Inches(1.6), Inches(0.35), 12, RGBColor(255, 255, 255), estilo.fuente_texto, negrita=True)
-    posiciones = [(0.9, 2.0), (3.0, 4.9), (8.8, 2.0), (10.0, 4.9), (2.5, 1.05), (8.4, 5.9)]
+    _texto_ajustado(slide, d.titulo, centro_x + Inches(0.22), centro_y + Inches(0.25), Inches(3.2), Inches(0.52), RGBColor(255, 255, 255), estilo.fuente_texto, base=15, negrita=True)
+    posiciones = [(0.65, 1.78), (0.65, 3.36), (0.65, 4.94), (9.1, 1.78), (9.1, 3.36), (9.1, 4.94)]
     for idx, item in enumerate(items):
         x, y = posiciones[idx]
-        caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y), Inches(2.45), Inches(0.95))
+        caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y), Inches(3.45), Inches(1.22))
         caja.fill.solid()
         caja.fill.fore_color.rgb = estilo.caja
         caja.line.color.rgb = estilo.acento
-        _texto(slide, item, Inches(x + 0.15), Inches(y + 0.15), Inches(2.1), Inches(0.45), 12, estilo.texto, estilo.fuente_texto)
+        _texto_ajustado(slide, item, Inches(x + 0.2), Inches(y + 0.16), Inches(3.0), Inches(0.72), estilo.texto, estilo.fuente_texto, base=11)
 
 
 def _crear_diapositiva_actividad(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
@@ -401,6 +434,17 @@ def _texto(slide, texto: str, x, y, w, h, tam: int, color: RGBColor, fuente: str
     p.font.color.rgb = color
     p.font.name = fuente
     p.font.bold = negrita
+
+
+def _texto_ajustado(slide, texto: str, x, y, w, h, color: RGBColor, fuente: str, base: int = 12, negrita: bool = False) -> None:
+    tam = base
+    if len(texto) > 130:
+        tam = max(8, base - 3)
+    elif len(texto) > 85:
+        tam = max(9, base - 2)
+    elif len(texto) > 55:
+        tam = max(10, base - 1)
+    _texto(slide, texto, x, y, w, h, tam, color, fuente, negrita=negrita)
 
 
 def _caja_objetivo(slide, objetivo: str, estilo: EstiloPresentacion, x, y, w, h) -> None:

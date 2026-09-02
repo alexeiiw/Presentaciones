@@ -131,6 +131,7 @@ Desde la pestaña `Curador de imagenes` puedes marcar cada imagen como `favorita
 - `columnas`: divide bullets en dos paneles.
 - `ruta`: muestra una secuencia de pasos.
 - `frase`: resalta una idea central a gran escala.
+- `seccion`: crea un separador visual para bloques grandes de la clase.
 - `diagrama`: organiza bullets como mapa conceptual simple.
 - `actividad`: estructura instrucciones, evidencia y cierre.
 - `repositorio`: presenta recursos o enlaces como tarjetas.
@@ -145,6 +146,8 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 
 - Se agregaron cinco estilos visuales nuevos.
 - Se agregaron tipos avanzados de diapositiva con `Tipo:`.
+- Se agrego `Tipo: seccion` y formato automatico para diapositivas con solo titulo.
+- Se mejoraron los layouts `ruta` y `diagrama` para reducir texto recortado y aprovechar mejor el espacio.
 - Se agrego curador basico de imagenes en Streamlit.
 - La biblioteca ahora prioriza imagenes favoritas/aprobadas y evita rechazadas.
 - El curador ahora filtra por estado y muestra pendientes por defecto.

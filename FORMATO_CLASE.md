@@ -10,16 +10,19 @@ Usa este formato para pegar el contenido en la interfaz web. Si un LLM genera el
 - Usa `Tipo: columnas` para comparaciones, ventajas/desventajas, antes/despues, serial/paralelo, PATA/SATA o problema/solucion.
 - Usa `Tipo: ruta` para procesos, secuencias historicas, fases, evolucion de versiones, pasos de laboratorio o flujo de aprendizaje.
 - Usa `Tipo: frase` para ideas centrales, principios de ingenieria, advertencias importantes o transiciones entre secciones.
+- Usa `Tipo: seccion` para separar bloques grandes de la clase, por ejemplo pasar de USB a almacenamiento interno.
 - Usa `Tipo: diagrama` para mapas conceptuales, componentes de arquitectura, relaciones entre capas, buses, controladores, hosts, dispositivos o protocolos.
 - Usa `Tipo: actividad` para ejercicios de clase, analisis en grupo, mini laboratorio, preguntas guiadas o trabajo aplicado.
 - Usa `Tipo: repositorio` para recursos finales, comandos, enlaces, lecturas, herramientas, documentacion o checklist de estudio.
 - Usa `Tipo: codigo` solo cuando exista codigo real entre triple backtick.
+- Nunca dejes una diapositiva con solo `## Diapositiva:` salvo que tenga `Tipo: seccion` y funcione como separador intencional.
 - Cada diapositiva debe tener maximo 6 bullets en `Contenido:`. Si hay mas, divide en varias diapositivas.
 - Escribe bullets completos, tecnicos y explicativos; evita frases vagas como "concepto importante".
 - Para `Imagen:`, escribe keywords especificas en ingles. Evita keywords genericas como `technology`, `math`, `computer` o `education`.
 - Para temas tecnicos, prefiere keywords concretas como `usb type c connector close up`, `sata data cable motherboard`, `parallel ide cable`, `serial communication oscilloscope`, `printed circuit board data bus`.
 - Incluye al menos una diapositiva `Tipo: actividad` antes del cierre.
 - Incluye al menos dos diapositivas visuales avanzadas entre `columnas`, `ruta` o `diagrama` por cada 10 diapositivas de contenido.
+- Para clases tecnicas, incluye al menos una comparativa `Tipo: columnas`, una secuencia `Tipo: ruta`, un mapa `Tipo: diagrama` y una practica `Tipo: actividad`.
 - Usa formulas en texto simple cuando sean necesarias, pero mantenlas cortas y explicadas.
 
 ````markdown
@@ -92,7 +95,7 @@ Imagen: programming code
 - `Contenido:` contiene bullets iniciados con `-`.
 - `Imagen:` puede ser una ruta local como `assets/diagrama_usb.png` o una busqueda en ingles para mejorar resultados en Pexels/Pixabay.
 - `Tipo: codigo` activa una diapositiva con bloque de codigo.
-- `Tipo:` tambien puede ser `columnas`, `ruta`, `frase`, `diagrama`, `actividad` o `repositorio`.
+- `Tipo:` tambien puede ser `columnas`, `ruta`, `frase`, `seccion`, `diagrama`, `actividad` o `repositorio`.
 - Si Pexels falla o no hay API key, el sistema genera la diapositiva con diseno alternativo.
 
 ## Estilos disponibles
@@ -183,6 +186,26 @@ Contenido:
 - Criterio para discutir en clase.
 ```
 
+### `Tipo: seccion`
+
+Uso recomendado: separador visual entre grandes bloques de contenido.
+
+Reglas:
+
+- Puede tener solo titulo si es una transicion intencional.
+- Si agregas `Objetivo:`, se mostrara como subtitulo de la seccion.
+- No uses bullets extensos; si necesitas explicar, usa `Tipo: contenido`.
+
+```markdown
+## Diapositiva: Almacenamiento Interno: PATA vs. SATA
+
+Tipo: seccion
+
+Objetivo: Pasamos de buses externos USB a interfaces internas de almacenamiento.
+
+Imagen: sata data cable motherboard close up
+```
+
 ### `Tipo: diagrama`
 
 Uso recomendado: arquitectura, relaciones entre componentes, mapa conceptual, topologia o estructura de protocolo.
@@ -203,6 +226,26 @@ Contenido:
 - Nodo principal 2
 - Nodo principal 3
 - Nodo principal 4
+```
+
+## Ejemplo recomendado para PATA/SATA
+
+```markdown
+## Diapositiva: Comparativa: PATA vs. SATA
+
+Tipo: columnas
+
+Objetivo: Comparar la evolucion de las interfaces internas de almacenamiento.
+
+Contenido:
+- PATA: Utiliza transmision paralela mediante cable plano IDE de 40 u 80 hilos.
+- PATA: Presenta problemas de diafonia, flujo de aire y sincronizacion a altas frecuencias.
+- PATA: Alcanzo limites practicos cercanos a 133 MB/s en ATA/133.
+- SATA: Utiliza transmision serial punto a punto con cables delgados y menor interferencia.
+- SATA: Mejora la integridad de senal y simplifica la administracion fisica del gabinete.
+- SATA: Evoluciona desde 1.5 Gbps hasta 6 Gbps en SATA III.
+
+Imagen: sata data cable and ide ribbon cable comparison
 ```
 
 ### `Tipo: actividad`
