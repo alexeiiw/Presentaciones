@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -53,7 +54,10 @@ with st.sidebar:
     nombre_archivo = st.text_input("Nombre del archivo", value="presentacion_clase")
     estilo = st.selectbox("Estilo visual", ["academico_formal", "tecnologico_oscuro", "alto_impacto"], index=1)
     modo_imagen = st.selectbox("Modo de imagen", ["pexels_o_diseno", "pexels", "solo_diseno", "sin_imagen"], index=0)
-    st.info("La clave PEXELS_API_KEY se lee desde .env o variables de entorno del Codespace.")
+    pexels_key = st.text_input("PEXELS_API_KEY", value=os.getenv("PEXELS_API_KEY", ""), type="password")
+    if pexels_key.strip():
+        os.environ["PEXELS_API_KEY"] = pexels_key.strip()
+    st.info("Puedes pegar la clave aqui o configurarla como variable de entorno del Codespace.")
 
 markdown = st.text_area("Contenido de la clase en Markdown", value=EJEMPLO, height=560)
 

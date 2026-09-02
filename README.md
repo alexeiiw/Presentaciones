@@ -18,6 +18,14 @@ En desarrollo local puedes usar el archivo `.env`.
 PEXELS_API_KEY=tu_clave
 ```
 
+En Codespaces tambien puedes exportarla antes de ejecutar la app:
+
+```bash
+export PEXELS_API_KEY="tu_clave"
+```
+
+Tambien puedes pegar la clave directamente en la barra lateral de la interfaz web.
+
 ## Ejecutar interfaz web
 
 ```bash
@@ -36,6 +44,7 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 - Selecciona estilo visual.
 - Selecciona modo de imagen.
 - Genera y descarga el archivo `.pptx`.
+- El archivo tambien queda guardado dentro de `salidas/`.
 
 ## Modos de imagen
 

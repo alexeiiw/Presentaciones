@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 from PIL import Image
 from pptx import Presentation
@@ -48,45 +49,48 @@ def _crear_portada(prs: Presentation, clase: Clase, estilo: EstiloPresentacion) 
     _pintar_fondo(slide, estilo.fondo)
     _agregar_banda_visual(slide, estilo)
 
-    _texto(slide, clase.titulo, Inches(0.8), Inches(1.8), Inches(8.4), Inches(1.2), 42, estilo.titulo, estilo.fuente_titulo, negrita=True)
+    tam_titulo = 38 if len(clase.titulo) > 55 else 42
+    _texto(slide, clase.titulo, Inches(0.8), Inches(1.35), Inches(8.15), Inches(2.6), tam_titulo, estilo.titulo, estilo.fuente_titulo, negrita=True)
     subtitulo = " | ".join(x for x in [clase.asignatura, clase.universidad] if x)
     if subtitulo:
-        _texto(slide, subtitulo, Inches(0.85), Inches(3.05), Inches(7.2), Inches(0.5), 18, estilo.texto, estilo.fuente_texto)
+        _texto(slide, subtitulo, Inches(0.85), Inches(4.15), Inches(7.7), Inches(0.8), 17, estilo.texto, estilo.fuente_texto)
     if clase.profesor:
-        _texto(slide, clase.profesor, Inches(0.85), Inches(5.8), Inches(5.5), Inches(0.4), 16, estilo.acento, estilo.fuente_texto)
+        _texto(slide, clase.profesor, Inches(0.85), Inches(6.05), Inches(6.4), Inches(0.4), 16, estilo.acento, estilo.fuente_texto)
 
 
 def _crear_diapositiva_contenido(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion, imagen: Path | None, modo_imagen: str) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
 
-    _texto(slide, d.titulo, Inches(0.55), Inches(0.35), Inches(7.1), Inches(0.65), 30, estilo.titulo, estilo.fuente_titulo, negrita=True)
-    _linea_acento(slide, estilo, Inches(0.55), Inches(1.12), Inches(1.5))
+    tam_titulo = 26 if len(d.titulo) > 42 else 30
+    _texto(slide, d.titulo, Inches(0.55), Inches(0.25), Inches(7.0), Inches(1.15), tam_titulo, estilo.titulo, estilo.fuente_titulo, negrita=True)
+    _linea_acento(slide, estilo, Inches(0.55), Inches(1.48), Inches(1.5))
 
     if imagen:
         _imagen_cover(slide, imagen, Inches(8.05), Inches(0.0), Inches(5.28), ALTO)
     elif modo_imagen in {"pexels_o_diseno", "solo_diseno"}:
         _fallback_visual(slide, estilo, Inches(8.05), Inches(0.0), Inches(5.28), ALTO)
 
-    y = Inches(1.35)
+    y = Inches(1.72)
     if d.objetivo:
         _caja_objetivo(slide, d.objetivo, estilo, Inches(0.55), y, Inches(6.9), Inches(0.9))
-        y = Inches(2.45)
+        y = Inches(2.82)
 
-    _bullets(slide, d.contenido[:6], Inches(0.75), y, Inches(6.55), Inches(4.25), estilo)
+    _bullets(slide, d.contenido[:6], Inches(0.75), y, Inches(6.55), Inches(3.95), estilo)
 
 
 def _crear_diapositiva_codigo(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion, imagen: Path | None, modo_imagen: str) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
-    _texto(slide, d.titulo, Inches(0.55), Inches(0.35), Inches(9.0), Inches(0.65), 28, estilo.titulo, estilo.fuente_titulo, negrita=True)
-    _linea_acento(slide, estilo, Inches(0.55), Inches(1.12), Inches(1.5))
+    tam_titulo = 25 if len(d.titulo) > 48 else 28
+    _texto(slide, d.titulo, Inches(0.55), Inches(0.25), Inches(9.0), Inches(1.05), tam_titulo, estilo.titulo, estilo.fuente_titulo, negrita=True)
+    _linea_acento(slide, estilo, Inches(0.55), Inches(1.42), Inches(1.5))
 
     if d.objetivo:
-        _texto(slide, d.objetivo, Inches(0.6), Inches(1.3), Inches(5.5), Inches(0.55), 14, estilo.texto, estilo.fuente_texto)
+        _texto(slide, d.objetivo, Inches(0.6), Inches(1.58), Inches(5.8), Inches(0.55), 14, estilo.texto, estilo.fuente_texto)
 
     codigo = d.codigo or "\n".join(d.contenido)
-    _bloque_codigo(slide, codigo, estilo, Inches(0.6), Inches(2.0), Inches(7.1), Inches(4.8))
+    _bloque_codigo(slide, codigo, estilo, Inches(0.6), Inches(2.25), Inches(7.1), Inches(4.55))
 
     if imagen:
         _imagen_cover(slide, imagen, Inches(8.2), Inches(1.35), Inches(4.65), Inches(5.45))
@@ -124,7 +128,7 @@ def _texto(slide, texto: str, x, y, w, h, tam: int, color: RGBColor, fuente: str
     tf = box.text_frame
     tf.word_wrap = True
     p = tf.paragraphs[0]
-    p.text = texto
+    p.text = _limpiar_texto(texto)
     p.font.size = Pt(tam)
     p.font.color.rgb = color
     p.font.name = fuente
@@ -146,7 +150,7 @@ def _bullets(slide, bullets: list[str], x, y, w, h, estilo: EstiloPresentacion) 
     tf.clear()
     for idx, item in enumerate(bullets):
         p = tf.paragraphs[0] if idx == 0 else tf.add_paragraph()
-        p.text = item
+        p.text = _limpiar_texto(item)
         p.level = 0
         p.font.size = Pt(18)
         p.font.name = estilo.fuente_texto
@@ -163,7 +167,7 @@ def _bloque_codigo(slide, codigo: str, estilo: EstiloPresentacion, x, y, w, h) -
     tf = box.text_frame
     tf.word_wrap = True
     p = tf.paragraphs[0]
-    p.text = codigo[:1800]
+    p.text = _limpiar_texto(codigo[:1800])
     p.font.name = estilo.fuente_codigo
     p.font.size = Pt(13)
     p.font.color.rgb = estilo.codigo_texto
@@ -200,3 +204,15 @@ def _imagen_cover(slide, ruta: Path, x, y, w, h) -> None:
         crop = max(0, (img_h - visible_h) / (2 * img_h))
         pic.crop_top = crop
         pic.crop_bottom = crop
+
+
+def _limpiar_texto(texto: str) -> str:
+    texto = texto.replace("\\(", "").replace("\\)", "")
+    texto = texto.replace("**", "").replace("*", "")
+    texto = re.sub(r"\\text\{([^}]*)\}", r"\1", texto)
+    texto = re.sub(r"\\frac\{([^}]*)\}\{([^}]*)\}", r"\1 / \2", texto)
+    texto = texto.replace("\\left", "").replace("\\right", "")
+    texto = texto.replace("\\times", "x").replace("\\approx", "~")
+    texto = texto.replace("\\eta", "eta").replace("\\mu", "micro")
+    texto = texto.replace("\\", "")
+    return texto
