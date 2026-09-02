@@ -59,7 +59,7 @@ Puedes subir imagenes al Codespace dentro de `assets/` y usarlas directamente de
 Ejemplo para la portada:
 
 ```markdown
-Imagen Universidad: assets/Umg.png
+Imagen Universidad: assets/imagen_universidad.jpg
 ```
 
 Ejemplo para una diapositiva:
@@ -68,7 +68,7 @@ Ejemplo para una diapositiva:
 Imagen: assets/diagrama_usb.png
 ```
 
-Formatos soportados: `.jpg`, `.jpeg`, `.png`, `.webp` y `.bmp`.
+Formatos soportados: `.jpg`, `.jpeg`, `.png`, `.webp` y `.bmp`. Los archivos dentro de `assets/` son locales y no se suben al repo por defecto.
 
 ## Modos de imagen
 

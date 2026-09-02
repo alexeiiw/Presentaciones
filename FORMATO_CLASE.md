@@ -9,7 +9,7 @@ Profesor: Nombre del profesor
 Asignatura: Nombre de la asignatura
 Universidad: Nombre de la universidad
 Estilo: tecnologico_oscuro
-Imagen Universidad: assets/Umg.png
+Imagen Universidad: assets/imagen_universidad.jpg
 
 Agenda:
 - Bienvenida y contexto de la semana
