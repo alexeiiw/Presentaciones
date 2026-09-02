@@ -1,6 +1,26 @@
 # Formato Markdown de la clase
 
-Usa este formato para pegar el contenido en la interfaz web.
+Usa este formato para pegar el contenido en la interfaz web. Si un LLM genera el Markdown, debe seguir estas reglas para producir presentaciones variadas, academicas y visualmente claras.
+
+## Instrucciones para LLM
+
+- Genera entre 12 y 24 diapositivas para una clase universitaria de 60 a 120 minutos.
+- No uses el layout normal en todas las diapositivas: alterna `Tipo:` segun el proposito pedagogico.
+- Usa `Tipo: contenido` o no escribas `Tipo:` solo para explicaciones conceptuales generales.
+- Usa `Tipo: columnas` para comparaciones, ventajas/desventajas, antes/despues, serial/paralelo, PATA/SATA o problema/solucion.
+- Usa `Tipo: ruta` para procesos, secuencias historicas, fases, evolucion de versiones, pasos de laboratorio o flujo de aprendizaje.
+- Usa `Tipo: frase` para ideas centrales, principios de ingenieria, advertencias importantes o transiciones entre secciones.
+- Usa `Tipo: diagrama` para mapas conceptuales, componentes de arquitectura, relaciones entre capas, buses, controladores, hosts, dispositivos o protocolos.
+- Usa `Tipo: actividad` para ejercicios de clase, analisis en grupo, mini laboratorio, preguntas guiadas o trabajo aplicado.
+- Usa `Tipo: repositorio` para recursos finales, comandos, enlaces, lecturas, herramientas, documentacion o checklist de estudio.
+- Usa `Tipo: codigo` solo cuando exista codigo real entre triple backtick.
+- Cada diapositiva debe tener maximo 6 bullets en `Contenido:`. Si hay mas, divide en varias diapositivas.
+- Escribe bullets completos, tecnicos y explicativos; evita frases vagas como "concepto importante".
+- Para `Imagen:`, escribe keywords especificas en ingles. Evita keywords genericas como `technology`, `math`, `computer` o `education`.
+- Para temas tecnicos, prefiere keywords concretas como `usb type c connector close up`, `sata data cable motherboard`, `parallel ide cable`, `serial communication oscilloscope`, `printed circuit board data bus`.
+- Incluye al menos una diapositiva `Tipo: actividad` antes del cierre.
+- Incluye al menos dos diapositivas visuales avanzadas entre `columnas`, `ruta` o `diagrama` por cada 10 diapositivas de contenido.
+- Usa formulas en texto simple cuando sean necesarias, pero mantenlas cortas y explicadas.
 
 ````markdown
 # Clase: Titulo de la clase
@@ -95,6 +115,16 @@ Imagen: programming code
 
 Usa `Tipo:` dentro de una diapositiva para cambiar su layout.
 
+### `Tipo: columnas`
+
+Uso recomendado: comparaciones, contrastes, ventajas/desventajas o dos perspectivas del mismo tema.
+
+Reglas:
+
+- Escribe de 4 a 8 bullets.
+- Los primeros bullets alimentan la primera columna y los restantes la segunda.
+- El titulo debe indicar claramente que hay comparacion.
+
 ```markdown
 ## Diapositiva: Comparacion de conceptos
 
@@ -109,6 +139,16 @@ Contenido:
 - Criterio de decision.
 ```
 
+### `Tipo: ruta`
+
+Uso recomendado: procesos, pasos, evolucion historica, versionado, flujo de comunicacion o secuencia de laboratorio.
+
+Reglas:
+
+- Escribe de 3 a 5 bullets.
+- Cada bullet debe ser un paso corto y accionable.
+- No lo uses para listas largas de teoria.
+
 ```markdown
 ## Diapositiva: Ruta de aprendizaje
 
@@ -122,6 +162,16 @@ Contenido:
 - Evidencia final
 ```
 
+### `Tipo: frase`
+
+Uso recomendado: mensaje central, principio tecnico, advertencia critica o separador entre bloques de la clase.
+
+Reglas:
+
+- Usa `Objetivo:` como frase principal.
+- Opcionalmente agrega 1 bullet como comentario secundario.
+- No uses mas de 2 bullets.
+
 ```markdown
 ## Diapositiva: Idea central
 
@@ -132,6 +182,16 @@ Objetivo: La tecnologia solo aporta valor cuando resuelve un problema real.
 Contenido:
 - Criterio para discutir en clase.
 ```
+
+### `Tipo: diagrama`
+
+Uso recomendado: arquitectura, relaciones entre componentes, mapa conceptual, topologia o estructura de protocolo.
+
+Reglas:
+
+- Escribe de 4 a 6 bullets.
+- Cada bullet debe ser un nodo del diagrama.
+- El titulo funciona como nodo central.
 
 ```markdown
 ## Diapositiva: Mapa conceptual
@@ -145,6 +205,16 @@ Contenido:
 - Nodo principal 4
 ```
 
+### `Tipo: actividad`
+
+Uso recomendado: practica, pregunta aplicada, resolucion de caso, mini laboratorio o discusion dirigida.
+
+Reglas:
+
+- Usa `Objetivo:` para describir la tarea que hara el estudiante.
+- Escribe de 3 a 9 bullets.
+- Los bullets se distribuyen en instrucciones, evidencia y cierre.
+
 ```markdown
 ## Diapositiva: Laboratorio en clase
 
@@ -157,6 +227,16 @@ Contenido:
 - Resolver el caso propuesto.
 - Presentar una evidencia.
 ```
+
+### `Tipo: repositorio`
+
+Uso recomendado: recursos, lecturas, comandos, checklist, enlaces o herramientas para continuar estudiando.
+
+Reglas:
+
+- Escribe de 3 a 6 bullets.
+- Cada bullet debe ser un recurso concreto o accion de estudio.
+- Es ideal para una de las ultimas diapositivas antes del cierre.
 
 ```markdown
 ## Diapositiva: Recursos de apoyo

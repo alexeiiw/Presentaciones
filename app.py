@@ -203,7 +203,25 @@ with tab_curador:
     else:
         st.caption("Marca como favorita o aprobada para priorizarla. Marca como rechazada para excluirla de futuras presentaciones.")
         estados = ["pendiente", "aprobada", "favorita", "rechazada"]
-        for indice, registro in enumerate(registros):
+        conteos = {estado: sum(1 for r in registros if r.get("estado", "pendiente") == estado) for estado in estados}
+        st.write(
+            f"Pendientes: {conteos['pendiente']} | Aprobadas: {conteos['aprobada']} | "
+            f"Favoritas: {conteos['favorita']} | Rechazadas: {conteos['rechazada']}"
+        )
+        filtro = st.radio(
+            "Mostrar imagenes",
+            ["pendiente", "aprobada", "favorita", "rechazada", "todas"],
+            horizontal=True,
+            index=0,
+        )
+        registros_filtrados = [
+            (indice, registro)
+            for indice, registro in enumerate(registros)
+            if filtro == "todas" or registro.get("estado", "pendiente") == filtro
+        ]
+        if not registros_filtrados:
+            st.info("No hay imagenes en este filtro.")
+        for indice, registro in registros_filtrados:
             titulo_registro = f"{indice + 1:03d} | {registro.get('keyword', 'sin keyword')} | {registro.get('proveedor', 'local')}"
             with st.expander(titulo_registro):
                 archivo_valor = registro.get("archivo", "")

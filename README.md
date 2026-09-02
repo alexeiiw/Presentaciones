@@ -100,7 +100,7 @@ Por defecto, las imagenes descargadas y `biblioteca_imagenes/index.json` no se s
 
 El archivo `biblioteca_imagenes/index.example.json` muestra la estructura esperada del indice.
 
-Desde la pestaña `Curador de imagenes` puedes marcar cada imagen como `favorita`, `aprobada`, `pendiente` o `rechazada`. El generador prioriza favoritas y aprobadas, y excluye rechazadas.
+Desde la pestaña `Curador de imagenes` puedes marcar cada imagen como `favorita`, `aprobada`, `pendiente` o `rechazada`. El curador muestra primero las pendientes y permite filtrar por estado. El generador prioriza favoritas y aprobadas, y excluye rechazadas.
 
 ## Distribuciones
 
@@ -147,6 +147,8 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 - Se agregaron tipos avanzados de diapositiva con `Tipo:`.
 - Se agrego curador basico de imagenes en Streamlit.
 - La biblioteca ahora prioriza imagenes favoritas/aprobadas y evita rechazadas.
+- El curador ahora filtra por estado y muestra pendientes por defecto.
+- `FORMATO_CLASE.md` ahora incluye instrucciones especificas para generacion con LLM.
 
 ### v0.5
 
