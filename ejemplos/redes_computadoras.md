@@ -4,6 +4,27 @@ Profesor: Prof. Nombre
 Asignatura: Redes de Computadoras
 Universidad: Universidad Ejemplo
 Estilo: tecnologico_oscuro
+Imagen Universidad: university campus technology classroom
+
+Agenda:
+- Bienvenida y contexto de la semana
+- Revision de conceptos previos
+- Desarrollo del tema central
+- Ejemplo tecnico aplicado
+- Cierre y aprendizajes
+
+Contenido Presentacion:
+- Objetivo de la clase
+- Componentes principales
+- Ejemplo en Python
+- Sintesis final
+
+Aprendizajes:
+- Identificar los componentes basicos de una red.
+- Diferenciar dispositivos finales e intermediarios.
+- Relacionar conceptos de red con ejemplos tecnicos.
+
+Frase Final: La infraestructura digital se entiende mejor cuando observas como viajan los datos.
 
 ## Diapositiva: Objetivo de la clase
 

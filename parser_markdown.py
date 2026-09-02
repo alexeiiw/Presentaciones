@@ -19,6 +19,11 @@ class Clase:
     asignatura: str = ""
     universidad: str = ""
     estilo: str = "academico_formal"
+    imagen_universidad: str = ""
+    agenda: list[str] = field(default_factory=list)
+    contenido_presentacion: list[str] = field(default_factory=list)
+    aprendizajes: list[str] = field(default_factory=list)
+    frase_final: str = ""
     diapositivas: list[Diapositiva] = field(default_factory=list)
 
 
@@ -26,6 +31,7 @@ def parsear_markdown(texto: str) -> Clase:
     clase = Clase()
     actual: Diapositiva | None = None
     leyendo_contenido = False
+    seccion_global: str | None = None
     leyendo_codigo = False
     codigo_lineas: list[str] = []
 
@@ -61,11 +67,34 @@ def parsear_markdown(texto: str) -> Clase:
         if linea.startswith("Estilo:"):
             clase.estilo = linea.split(":", 1)[1].strip()
             continue
+        if linea.startswith("Imagen Universidad:"):
+            clase.imagen_universidad = linea.split(":", 1)[1].strip()
+            continue
+        if linea.startswith("Frase Final:"):
+            clase.frase_final = linea.split(":", 1)[1].strip()
+            continue
+        if linea.startswith("Agenda:"):
+            seccion_global = "agenda"
+            actual = None
+            continue
+        if linea.startswith("Contenido Presentacion:"):
+            seccion_global = "contenido_presentacion"
+            actual = None
+            continue
+        if linea.startswith("Aprendizajes:"):
+            seccion_global = "aprendizajes"
+            actual = None
+            continue
+
+        if seccion_global and linea.startswith("-"):
+            getattr(clase, seccion_global).append(linea[1:].strip())
+            continue
 
         if linea.startswith("## Diapositiva:"):
             actual = Diapositiva(titulo=linea.split(":", 1)[1].strip())
             clase.diapositivas.append(actual)
             leyendo_contenido = False
+            seccion_global = None
             continue
 
         if not actual:

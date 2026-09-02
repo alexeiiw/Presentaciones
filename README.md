@@ -45,6 +45,7 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 ## Uso
 
 - Pega el Markdown de la clase.
+- Define `Agenda:`, `Contenido Presentacion:`, `Aprendizajes:` y `Frase Final:` si quieres usar la estructura academica completa.
 - Selecciona estilo visual.
 - Selecciona modo de imagen.
 - Selecciona distribucion de diapositivas.
@@ -102,6 +103,14 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 - Se agrego boton para limpiar contenido en la interfaz.
 - Se agregaron nuevos estilos visuales.
 - Se documento `CONFIGURACION.md` para claves locales.
+
+### v0.4
+
+- Se agrego portada institucional con imagen definida por `Imagen Universidad:`.
+- Se agrego diapositiva automatica de agenda.
+- Se agrego diapositiva automatica de contenido de la presentacion.
+- Se agrego diapositiva final automatica con aprendizajes y frase motivacional.
+- Se mejoro la interfaz Streamlit con una cabecera visual y mejor organizacion.
 
 ### v0.2
 

@@ -9,6 +9,27 @@ Profesor: Nombre del profesor
 Asignatura: Nombre de la asignatura
 Universidad: Nombre de la universidad
 Estilo: tecnologico_oscuro
+Imagen Universidad: university campus technology classroom
+
+Agenda:
+- Bienvenida y contexto de la semana
+- Revisión de conceptos previos
+- Desarrollo del tema central
+- Actividad practica
+
+Contenido Presentacion:
+- Objetivo de la clase
+- Tema principal
+- Ejemplo tecnico
+- Actividad o caso aplicado
+- Cierre y aprendizajes
+
+Aprendizajes:
+- Primer aprendizaje esperado.
+- Segundo aprendizaje esperado.
+- Tercer aprendizaje esperado.
+
+Frase Final: Una frase motivacional breve para cerrar la clase.
 
 ## Diapositiva: Titulo de la diapositiva
 
@@ -38,6 +59,11 @@ Imagen: programming code
 ## Reglas
 
 - `# Clase:` define el titulo de la presentacion.
+- `Imagen Universidad:` define una busqueda de imagen para la portada institucional.
+- `Agenda:` crea una diapositiva automatica con puntos de clase.
+- `Contenido Presentacion:` crea una diapositiva automatica con la estructura del material.
+- `Aprendizajes:` alimenta la diapositiva final de cierre.
+- `Frase Final:` agrega una frase motivacional al cierre.
 - `Estilo:` puede ser `academico_formal`, `tecnologico_oscuro`, `alto_impacto`, `ingenieria_codigo`, `pizarra_matematica`, `laboratorio_redes`, `ciberseguridad` o `minimalista_claro`.
 - Cada diapositiva empieza con `## Diapositiva:`.
 - `Objetivo:` es opcional, pero recomendado.

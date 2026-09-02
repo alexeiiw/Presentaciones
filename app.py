@@ -16,6 +16,28 @@ Profesor: Prof. Nombre
 Asignatura: Redes de Computadoras
 Universidad: Universidad Ejemplo
 Estilo: tecnologico_oscuro
+Imagen Universidad: university campus technology classroom
+
+Agenda:
+- Bienvenida y contexto de la semana
+- Revisión de conceptos previos
+- Desarrollo del tema central
+- Demostración técnica guiada
+- Actividad practica de cierre
+
+Contenido Presentacion:
+- Objetivo de la clase
+- Fundamentos de redes de computadoras
+- Componentes principales
+- Ejemplo técnico aplicado
+- Cierre y aprendizajes
+
+Aprendizajes:
+- Diferenciar componentes físicos y lógicos de una red.
+- Explicar la función básica de los protocolos de comunicación.
+- Relacionar redes con servicios modernos de internet.
+
+Frase Final: La ingeniería se aprende mejor cuando conectas teoría, práctica y criterio técnico.
 
 ## Diapositiva: Objetivo de la clase
 
@@ -46,8 +68,44 @@ Imagen: programming code network
 
 st.set_page_config(page_title="Generador de Presentaciones", page_icon="PPTX", layout="wide")
 
-st.title("Generador de presentaciones academicas")
-st.caption("Pega una clase en Markdown, selecciona estilo y genera un archivo .pptx.")
+st.markdown(
+    """
+    <style>
+    .main-title {
+        padding: 1.2rem 1.4rem;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #0f172a 0%, #164e63 55%, #0891b2 100%);
+        color: white;
+        margin-bottom: 1rem;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+    }
+    .main-title h1 { margin: 0; font-size: 2.1rem; }
+    .main-title p { margin: .35rem 0 0 0; color: #cffafe; }
+    .panel-note {
+        padding: .85rem 1rem;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        margin-bottom: .8rem;
+    }
+    </style>
+    <div class="main-title">
+        <h1>Generador de presentaciones academicas</h1>
+        <p>Markdown estructurado, imagenes reutilizables, estilos visuales y salida PowerPoint lista para clase.</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """
+    <div class="panel-note">
+    Flujo recomendado: escribe la clase en Markdown, define agenda y aprendizajes, selecciona estilo, genera el PPTX y descargalo.
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 if "markdown_clase" not in st.session_state:
     st.session_state.markdown_clase = EJEMPLO
@@ -57,7 +115,7 @@ def limpiar_contenido() -> None:
     st.session_state.markdown_clase = ""
 
 with st.sidebar:
-    st.header("Configuracion")
+    st.header("Configuracion de salida")
     nombre_archivo = st.text_input("Nombre del archivo", value="presentacion_clase")
     estilo = st.selectbox(
         "Estilo visual",
@@ -95,8 +153,9 @@ with st.sidebar:
         os.environ["PEXELS_API_KEY"] = pexels_key.strip()
     if pixabay_key.strip():
         os.environ["PIXABAY_API_KEY"] = pixabay_key.strip()
-    st.info("Puedes pegar las claves aqui o configurarlas como variables de entorno del Codespace.")
+    st.info("Las claves se pueden pegar aqui, guardarlas en .env o exportarlas como variables de entorno.")
 
+st.subheader("Contenido fuente")
 markdown = st.text_area("Contenido de la clase en Markdown", key="markdown_clase", height=560)
 
 col1, col2 = st.columns([1, 1])

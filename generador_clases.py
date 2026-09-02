@@ -31,7 +31,15 @@ def generar_presentacion(
     estilo = obtener_estilo(estilo_nombre or clase.estilo)
     imagenes_usadas: set[str] = set()
 
-    _crear_portada(prs, clase, estilo)
+    imagen_portada = _resolver_imagen(clase.imagen_universidad, modo_imagen, imagenes_usadas)
+    _crear_portada(prs, clase, estilo, imagen_portada)
+    if clase.agenda:
+        _crear_diapositiva_lista(prs, "Agenda de la clase", clase.agenda, estilo, "Lo que veremos hoy")
+
+    contenido = clase.contenido_presentacion or [d.titulo for d in clase.diapositivas]
+    if contenido:
+        _crear_diapositiva_lista(prs, "Contenido de la presentacion", contenido, estilo, "Estructura del material")
+
     for indice, diapositiva in enumerate(clase.diapositivas):
         imagen = _resolver_imagen(diapositiva.imagen, modo_imagen, imagenes_usadas)
         layout = _layout_para_diapositiva(indice, distribucion)
@@ -41,15 +49,28 @@ def generar_presentacion(
         else:
             _crear_diapositiva_contenido(prs, diapositiva, estilo, imagen, modo_imagen, layout)
 
+    aprendizajes = clase.aprendizajes or _aprendizajes_desde_diapositivas(clase.diapositivas)
+    if aprendizajes or clase.frase_final:
+        _crear_diapositiva_cierre(prs, aprendizajes, clase.frase_final, estilo)
+
     salida.parent.mkdir(parents=True, exist_ok=True)
     prs.save(salida)
     return salida
 
 
-def _crear_portada(prs: Presentation, clase: Clase, estilo: EstiloPresentacion) -> None:
+def _crear_portada(prs: Presentation, clase: Clase, estilo: EstiloPresentacion, imagen: Path | None = None) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
-    _agregar_banda_visual(slide, estilo)
+
+    if imagen:
+        _imagen_cover(slide, imagen, Inches(8.55), Inches(0), Inches(4.78), ALTO)
+        overlay = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(8.55), Inches(0), Inches(4.78), ALTO)
+        overlay.fill.solid()
+        overlay.fill.fore_color.rgb = estilo.fondo_secundario
+        overlay.fill.transparency = 0.18
+        overlay.line.fill.background()
+    else:
+        _agregar_banda_visual(slide, estilo)
 
     tam_titulo = 38 if len(clase.titulo) > 55 else 42
     _texto(slide, clase.titulo, Inches(0.8), Inches(1.35), Inches(8.15), Inches(2.6), tam_titulo, estilo.titulo, estilo.fuente_titulo, negrita=True)
@@ -58,6 +79,52 @@ def _crear_portada(prs: Presentation, clase: Clase, estilo: EstiloPresentacion) 
         _texto(slide, subtitulo, Inches(0.85), Inches(4.15), Inches(7.7), Inches(0.8), 17, estilo.texto, estilo.fuente_texto)
     if clase.profesor:
         _texto(slide, clase.profesor, Inches(0.85), Inches(6.05), Inches(6.4), Inches(0.4), 16, estilo.acento, estilo.fuente_texto)
+
+
+def _crear_diapositiva_lista(prs: Presentation, titulo: str, items: list[str], estilo: EstiloPresentacion, subtitulo: str = "") -> None:
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    _pintar_fondo(slide, estilo.fondo)
+    _texto(slide, titulo, Inches(0.65), Inches(0.45), Inches(11.6), Inches(0.8), 32, estilo.titulo, estilo.fuente_titulo, negrita=True)
+    _linea_acento(slide, estilo, Inches(0.65), Inches(1.35), Inches(2.0))
+    if subtitulo:
+        _texto(slide, subtitulo, Inches(0.7), Inches(1.55), Inches(10.8), Inches(0.4), 15, estilo.texto, estilo.fuente_texto)
+
+    columnas = 2 if len(items) > 6 else 1
+    ancho = Inches(5.7 if columnas == 2 else 10.8)
+    for idx, item in enumerate(items[:12]):
+        col = idx % columnas
+        fila = idx // columnas
+        x = Inches(0.8) + col * Inches(6.0)
+        y = Inches(2.15) + fila * Inches(0.72)
+        _tarjeta_item(slide, idx + 1, item, estilo, x, y, ancho, Inches(0.52))
+
+
+def _crear_diapositiva_cierre(prs: Presentation, aprendizajes: list[str], frase: str, estilo: EstiloPresentacion) -> None:
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    _pintar_fondo(slide, estilo.fondo)
+    _agregar_banda_visual(slide, estilo)
+    _texto(slide, "Esto fue lo que aprendiste", Inches(0.75), Inches(0.65), Inches(8.0), Inches(0.8), 34, estilo.titulo, estilo.fuente_titulo, negrita=True)
+    _linea_acento(slide, estilo, Inches(0.75), Inches(1.55), Inches(2.0))
+    _bullets(slide, aprendizajes[:5], Inches(1.0), Inches(2.0), Inches(7.5), Inches(3.0), estilo)
+
+    frase = frase or "El conocimiento se consolida cuando puedes explicarlo, aplicarlo y mejorarlo."
+    caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(5.65), Inches(8.0), Inches(0.95))
+    caja.fill.solid()
+    caja.fill.fore_color.rgb = estilo.caja
+    caja.line.color.rgb = estilo.acento
+    _texto(slide, frase, Inches(1.05), Inches(5.84), Inches(7.45), Inches(0.5), 17, estilo.acento, estilo.fuente_texto, negrita=True)
+
+
+def _tarjeta_item(slide, numero: int, texto: str, estilo: EstiloPresentacion, x, y, w, h) -> None:
+    caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, y, w, h)
+    caja.fill.solid()
+    caja.fill.fore_color.rgb = estilo.caja
+    caja.line.color.rgb = estilo.acento
+    _texto(slide, f"{numero:02d}. {texto}", x + Inches(0.16), y + Inches(0.08), w - Inches(0.28), h - Inches(0.08), 15, estilo.texto, estilo.fuente_texto)
+
+
+def _aprendizajes_desde_diapositivas(diapositivas: list[Diapositiva]) -> list[str]:
+    return [f"Comprender {d.titulo.lower()}" for d in diapositivas[:5]]
 
 
 def _resolver_imagen(keyword: str, modo_imagen: str, imagenes_usadas: set[str]) -> Path | None:
