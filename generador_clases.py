@@ -128,13 +128,16 @@ def _aprendizajes_desde_diapositivas(diapositivas: list[Diapositiva]) -> list[st
 
 
 def _resolver_imagen(keyword: str, modo_imagen: str, imagenes_usadas: set[str]) -> Path | None:
-    if not keyword or modo_imagen in {"solo_diseno", "sin_imagen"}:
+    if not keyword:
         return None
 
     local_directa = _resolver_ruta_local(keyword)
     if local_directa:
         imagenes_usadas.add(str(local_directa))
         return local_directa
+
+    if modo_imagen in {"solo_diseno", "sin_imagen"}:
+        return None
 
     if "biblioteca" in modo_imagen:
         local = buscar_en_biblioteca(keyword, imagenes_usadas)

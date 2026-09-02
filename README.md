@@ -59,8 +59,16 @@ Puedes subir imagenes al Codespace dentro de `assets/` y usarlas directamente de
 Ejemplo para la portada:
 
 ```markdown
-Imagen Universidad: assets/imagen_universidad.jpg
+Imagen Portada: assets/imagen_universidad.jpg
 ```
+
+Tambien puedes indicar solo el nombre si la imagen esta dentro de `assets/`:
+
+```markdown
+Imagen Portada: imagen_universidad.jpg
+```
+
+La imagen local de portada tiene prioridad aunque el modo de imagen seleccionado sea `sin_imagen` o `solo_diseno`.
 
 Ejemplo para una diapositiva:
 
@@ -117,6 +125,8 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 
 - Se agrego soporte para imagenes locales en `assets/`.
 - `Imagen Universidad:` ahora puede apuntar a un archivo local.
+- Se agrego `Imagen Portada:` como alias mas claro para portada.
+- La portada respeta imagen local aunque el modo de imagen desactive APIs.
 - `Imagen:` ahora puede apuntar a un archivo local por diapositiva.
 
 ### v0.4

@@ -67,7 +67,7 @@ def parsear_markdown(texto: str) -> Clase:
         if linea.startswith("Estilo:"):
             clase.estilo = linea.split(":", 1)[1].strip()
             continue
-        if linea.startswith("Imagen Universidad:"):
+        if linea.startswith("Imagen Universidad:") or linea.startswith("Imagen Portada:"):
             clase.imagen_universidad = linea.split(":", 1)[1].strip()
             continue
         if linea.startswith("Frase Final:"):

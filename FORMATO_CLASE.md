@@ -9,7 +9,7 @@ Profesor: Nombre del profesor
 Asignatura: Nombre de la asignatura
 Universidad: Nombre de la universidad
 Estilo: tecnologico_oscuro
-Imagen Universidad: assets/imagen_universidad.jpg
+Imagen Portada: assets/imagen_universidad.jpg
 
 Agenda:
 - Bienvenida y contexto de la semana
@@ -59,7 +59,7 @@ Imagen: programming code
 ## Reglas
 
 - `# Clase:` define el titulo de la presentacion.
-- `Imagen Universidad:` puede ser una ruta local como `assets/universidad_umg.jpg` o una busqueda para Pexels/Pixabay.
+- `Imagen Portada:` o `Imagen Universidad:` puede ser una ruta local como `assets/universidad_umg.jpg`, solo el nombre como `universidad_umg.jpg`, o una busqueda para Pexels/Pixabay.
 - `Agenda:` crea una diapositiva automatica con puntos de clase.
 - `Contenido Presentacion:` crea una diapositiva automatica con la estructura del material.
 - `Aprendizajes:` alimenta la diapositiva final de cierre.
