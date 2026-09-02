@@ -140,6 +140,10 @@ Desde la pestaña `Curador de imagenes` puedes marcar cada imagen como `favorita
 
 Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 
+`FORMATO_CLASE.md` incluye reglas para que un LLM genere contenido completo: todo bloque anunciado en `Agenda:` o `Contenido Presentacion:` debe desarrollarse en diapositivas posteriores, y cada `Tipo: seccion` debe ir seguido por contenido real.
+
+Antes de generar, valida el checklist de calidad del formato para evitar diapositivas vacias, temas inconclusos o layouts repetitivos.
+
 ## Historial de Cambios
 
 ### v0.6
@@ -152,6 +156,7 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 - La biblioteca ahora prioriza imagenes favoritas/aprobadas y evita rechazadas.
 - El curador ahora filtra por estado y muestra pendientes por defecto.
 - `FORMATO_CLASE.md` ahora incluye instrucciones especificas para generacion con LLM.
+- `FORMATO_CLASE.md` ahora incluye checklist de completitud para evitar bloques anunciados sin desarrollo.
 
 ### v0.5
 

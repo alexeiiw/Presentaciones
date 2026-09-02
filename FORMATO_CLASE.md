@@ -16,6 +16,9 @@ Usa este formato para pegar el contenido en la interfaz web. Si un LLM genera el
 - Usa `Tipo: repositorio` para recursos finales, comandos, enlaces, lecturas, herramientas, documentacion o checklist de estudio.
 - Usa `Tipo: codigo` solo cuando exista codigo real entre triple backtick.
 - Nunca dejes una diapositiva con solo `## Diapositiva:` salvo que tenga `Tipo: seccion` y funcione como separador intencional.
+- Todo bloque listado en `Contenido Presentacion:` debe tener al menos una diapositiva desarrollada despues.
+- Si anuncias un tema en agenda, tambien debe aparecer en el contenido o en una actividad de cierre.
+- No termines la clase inmediatamente despues de una seccion nueva; desarrolla el bloque con contenido, comparativa, diagrama, actividad o repositorio.
 - Cada diapositiva debe tener maximo 6 bullets en `Contenido:`. Si hay mas, divide en varias diapositivas.
 - Escribe bullets completos, tecnicos y explicativos; evita frases vagas como "concepto importante".
 - Para `Imagen:`, escribe keywords especificas en ingles. Evita keywords genericas como `technology`, `math`, `computer` o `education`.
@@ -24,6 +27,20 @@ Usa este formato para pegar el contenido en la interfaz web. Si un LLM genera el
 - Incluye al menos dos diapositivas visuales avanzadas entre `columnas`, `ruta` o `diagrama` por cada 10 diapositivas de contenido.
 - Para clases tecnicas, incluye al menos una comparativa `Tipo: columnas`, una secuencia `Tipo: ruta`, un mapa `Tipo: diagrama` y una practica `Tipo: actividad`.
 - Usa formulas en texto simple cuando sean necesarias, pero mantenlas cortas y explicadas.
+
+## Checklist de calidad antes de generar
+
+- La presentacion desarrolla todos los bloques declarados en `Contenido Presentacion:`.
+- La agenda no promete temas que luego quedan sin diapositivas.
+- Ninguna diapositiva queda vacia por accidente.
+- Cada `Tipo: seccion` va seguido por una diapositiva que desarrolla ese bloque.
+- Hay al menos una comparativa tecnica con `Tipo: columnas`.
+- Hay al menos una secuencia, flujo o evolucion con `Tipo: ruta`.
+- Hay al menos un mapa conceptual o arquitectura con `Tipo: diagrama`.
+- Hay al menos una practica o discusion con `Tipo: actividad`.
+- Hay una diapositiva final de recursos con `Tipo: repositorio` cuando la clase requiere seguimiento.
+- Las imagenes usan keywords tecnicas especificas en ingles.
+- Los bullets explican ideas completas y no son etiquetas sueltas.
 
 ````markdown
 # Clase: Titulo de la clase
@@ -42,11 +59,11 @@ Agenda:
 - Actividad practica
 
 Contenido Presentacion:
-- Objetivo de la clase
-- Tema principal
-- Ejemplo tecnico
-- Actividad o caso aplicado
-- Cierre y aprendizajes
+- Bloque 1: Fundamentos conceptuales
+- Bloque 2: Desarrollo tecnico principal
+- Bloque 3: Comparativa o arquitectura
+- Bloque 4: Actividad practica
+- Bloque 5: Recursos y cierre
 
 Aprendizajes:
 - Primer aprendizaje esperado.
@@ -87,6 +104,7 @@ Imagen: programming code
 - `Logo Portada:` o `Logo Universidad:` puede ser una ruta local como `assets/logo_umg.png` o solo el nombre como `logo_umg.png` si esta dentro de `assets/`.
 - `Agenda:` crea una diapositiva automatica con puntos de clase.
 - `Contenido Presentacion:` crea una diapositiva automatica con la estructura del material.
+- Cada item de `Contenido Presentacion:` debe estar desarrollado por al menos una diapositiva posterior.
 - `Aprendizajes:` alimenta la diapositiva final de cierre.
 - `Frase Final:` agrega una frase motivacional al cierre.
 - `Estilo:` puede usar cualquiera de los estilos listados abajo.
@@ -195,6 +213,7 @@ Reglas:
 - Puede tener solo titulo si es una transicion intencional.
 - Si agregas `Objetivo:`, se mostrara como subtitulo de la seccion.
 - No uses bullets extensos; si necesitas explicar, usa `Tipo: contenido`.
+- Debe ir seguido por una o mas diapositivas que desarrollen esa seccion.
 
 ```markdown
 ## Diapositiva: Almacenamiento Interno: PATA vs. SATA
@@ -229,6 +248,8 @@ Contenido:
 ```
 
 ## Ejemplo recomendado para PATA/SATA
+
+Si `Contenido Presentacion:` anuncia almacenamiento interno, no basta con una seccion. Debe incluir al menos una diapositiva explicativa o comparativa.
 
 ```markdown
 ## Diapositiva: Comparativa: PATA vs. SATA
