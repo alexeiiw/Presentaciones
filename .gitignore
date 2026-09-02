@@ -1,9 +1,11 @@
 .env
+claves.txt
 temp/*
 !temp/.gitkeep
 salidas/*.pptx
 biblioteca_imagenes/imagenes/*
 !biblioteca_imagenes/imagenes/.gitkeep
+biblioteca_imagenes/index.json
 __pycache__/
 *.pyc
 .streamlit/secrets.toml

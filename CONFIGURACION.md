@@ -13,6 +13,8 @@ PIXABAY_API_KEY=tu_clave_de_pixabay
 
 El archivo `.env` esta ignorado por Git y no se sube al repositorio.
 
+Tambien se ignora cualquier archivo llamado `claves.txt`. Si prefieres guardar notas locales de claves, usa ese nombre y no se subira a GitHub.
+
 ## Alternativa en Codespaces
 
 Tambien puedes exportar las claves en la terminal:

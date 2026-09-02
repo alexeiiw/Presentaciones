@@ -67,7 +67,9 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 
 Las imagenes descargadas se guardan localmente en `biblioteca_imagenes/imagenes/` y se registran en `biblioteca_imagenes/index.json` para reutilizarlas en futuras presentaciones.
 
-Por defecto, las imagenes descargadas no se suben a GitHub para evitar que el repositorio crezca demasiado.
+Por defecto, las imagenes descargadas y `biblioteca_imagenes/index.json` no se suben a GitHub para evitar que el repositorio crezca demasiado y para que el indice local no genere cambios pendientes constantes.
+
+El archivo `biblioteca_imagenes/index.example.json` muestra la estructura esperada del indice.
 
 ## Distribuciones
 
