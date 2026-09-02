@@ -52,6 +52,24 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 - Genera y descarga el archivo `.pptx`.
 - El archivo tambien queda guardado dentro de `salidas/`.
 
+## Imagenes Locales
+
+Puedes subir imagenes al Codespace dentro de `assets/` y usarlas directamente desde el Markdown.
+
+Ejemplo para la portada:
+
+```markdown
+Imagen Universidad: assets/Umg.png
+```
+
+Ejemplo para una diapositiva:
+
+```markdown
+Imagen: assets/diagrama_usb.png
+```
+
+Formatos soportados: `.jpg`, `.jpeg`, `.png`, `.webp` y `.bmp`.
+
 ## Modos de imagen
 
 - `biblioteca_pexels_pixabay`: busca primero en biblioteca local, luego Pexels y luego Pixabay.
@@ -95,14 +113,11 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 
 ## Historial de Cambios
 
-### v0.3
+### v0.5
 
-- Se agrego Pixabay como proveedor secundario de imagenes.
-- Se agrego biblioteca local para reutilizar imagenes descargadas.
-- Se agrego selector de distribucion: fija, alternada y aleatoria controlada.
-- Se agrego boton para limpiar contenido en la interfaz.
-- Se agregaron nuevos estilos visuales.
-- Se documento `CONFIGURACION.md` para claves locales.
+- Se agrego soporte para imagenes locales en `assets/`.
+- `Imagen Universidad:` ahora puede apuntar a un archivo local.
+- `Imagen:` ahora puede apuntar a un archivo local por diapositiva.
 
 ### v0.4
 
@@ -111,6 +126,15 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 - Se agrego diapositiva automatica de contenido de la presentacion.
 - Se agrego diapositiva final automatica con aprendizajes y frase motivacional.
 - Se mejoro la interfaz Streamlit con una cabecera visual y mejor organizacion.
+
+### v0.3
+
+- Se agrego Pixabay como proveedor secundario de imagenes.
+- Se agrego biblioteca local para reutilizar imagenes descargadas.
+- Se agrego selector de distribucion: fija, alternada y aleatoria controlada.
+- Se agrego boton para limpiar contenido en la interfaz.
+- Se agregaron nuevos estilos visuales.
+- Se documento `CONFIGURACION.md` para claves locales.
 
 ### v0.2
 

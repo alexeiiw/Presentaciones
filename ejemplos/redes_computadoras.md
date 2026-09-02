@@ -4,7 +4,7 @@ Profesor: Prof. Nombre
 Asignatura: Redes de Computadoras
 Universidad: Universidad Ejemplo
 Estilo: tecnologico_oscuro
-Imagen Universidad: university campus technology classroom
+Imagen Universidad: assets/Umg.png
 
 Agenda:
 - Bienvenida y contexto de la semana

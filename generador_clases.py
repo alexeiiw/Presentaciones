@@ -131,6 +131,11 @@ def _resolver_imagen(keyword: str, modo_imagen: str, imagenes_usadas: set[str]) 
     if not keyword or modo_imagen in {"solo_diseno", "sin_imagen"}:
         return None
 
+    local_directa = _resolver_ruta_local(keyword)
+    if local_directa:
+        imagenes_usadas.add(str(local_directa))
+        return local_directa
+
     if "biblioteca" in modo_imagen:
         local = buscar_en_biblioteca(keyword, imagenes_usadas)
         if local:
@@ -149,6 +154,19 @@ def _resolver_imagen(keyword: str, modo_imagen: str, imagenes_usadas: set[str]) 
     guardada = guardar_en_biblioteca(keyword, ruta, proveedor, url)
     imagenes_usadas.add(str(guardada))
     return guardada
+
+
+def _resolver_ruta_local(valor: str) -> Path | None:
+    ruta = Path(valor.strip().strip('"'))
+    extensiones = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+    if ruta.suffix.lower() not in extensiones:
+        return None
+    if ruta.exists() and ruta.is_file():
+        return ruta
+    ruta_assets = Path("assets") / ruta.name
+    if ruta_assets.exists() and ruta_assets.is_file():
+        return ruta_assets
+    return None
 
 
 def _layout_para_diapositiva(indice: int, distribucion: str) -> str:
