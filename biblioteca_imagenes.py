@@ -12,23 +12,30 @@ INDEX_PATH = BASE_BIBLIOTECA / "index.json"
 
 def buscar_en_biblioteca(keyword: str, usadas: set[str] | None = None) -> Path | None:
     usadas = usadas or set()
-    registros = _leer_index()
+    registros = leer_index()
     normalizada = _normalizar_keyword(keyword)
-    candidatas = [r for r in registros if r.get("keyword_normalizada") == normalizada and r.get("archivo") not in usadas]
+    candidatas = [
+        r
+        for r in registros
+        if r.get("keyword_normalizada") == normalizada
+        and r.get("archivo") not in usadas
+        and r.get("estado", "pendiente") != "rechazada"
+    ]
     if not candidatas:
         return None
 
-    candidatas.sort(key=lambda r: r.get("usos", 0))
+    prioridad = {"favorita": 0, "aprobada": 1, "pendiente": 2}
+    candidatas.sort(key=lambda r: (prioridad.get(r.get("estado", "pendiente"), 2), r.get("usos", 0)))
     elegida = random.choice(candidatas[: min(3, len(candidatas))])
     elegida["usos"] = elegida.get("usos", 0) + 1
-    _guardar_index(registros)
+    guardar_index(registros)
     ruta = Path(elegida["archivo"])
     return ruta if ruta.exists() else None
 
 
 def guardar_en_biblioteca(keyword: str, ruta_origen: Path, proveedor: str, url: str = "") -> Path:
     DIR_IMAGENES.mkdir(parents=True, exist_ok=True)
-    registros = _leer_index()
+    registros = leer_index()
     normalizada = _normalizar_keyword(keyword)
     extension = ruta_origen.suffix.lower() or ".jpg"
     nombre = f"{normalizada}_{len(registros) + 1:04d}{extension}"
@@ -43,13 +50,14 @@ def guardar_en_biblioteca(keyword: str, ruta_origen: Path, proveedor: str, url: 
             "proveedor": proveedor,
             "url": url,
             "usos": 1,
+            "estado": "pendiente",
         }
     )
-    _guardar_index(registros)
+    guardar_index(registros)
     return destino
 
 
-def _leer_index() -> list[dict]:
+def leer_index() -> list[dict]:
     if not INDEX_PATH.exists():
         return []
     try:
@@ -58,9 +66,16 @@ def _leer_index() -> list[dict]:
         return []
 
 
-def _guardar_index(registros: list[dict]) -> None:
+def guardar_index(registros: list[dict]) -> None:
     BASE_BIBLIOTECA.mkdir(parents=True, exist_ok=True)
     INDEX_PATH.write_text(json.dumps(registros, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def actualizar_estado(indice: int, estado: str) -> None:
+    registros = leer_index()
+    if 0 <= indice < len(registros):
+        registros[indice]["estado"] = estado
+        guardar_index(registros)
 
 
 def _normalizar_keyword(keyword: str) -> str:

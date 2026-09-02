@@ -66,10 +66,106 @@ Imagen: programming code
 - `Contenido Presentacion:` crea una diapositiva automatica con la estructura del material.
 - `Aprendizajes:` alimenta la diapositiva final de cierre.
 - `Frase Final:` agrega una frase motivacional al cierre.
-- `Estilo:` puede ser `academico_formal`, `tecnologico_oscuro`, `alto_impacto`, `ingenieria_codigo`, `pizarra_matematica`, `laboratorio_redes`, `ciberseguridad` o `minimalista_claro`.
+- `Estilo:` puede usar cualquiera de los estilos listados abajo.
 - Cada diapositiva empieza con `## Diapositiva:`.
 - `Objetivo:` es opcional, pero recomendado.
 - `Contenido:` contiene bullets iniciados con `-`.
 - `Imagen:` puede ser una ruta local como `assets/diagrama_usb.png` o una busqueda en ingles para mejorar resultados en Pexels/Pixabay.
 - `Tipo: codigo` activa una diapositiva con bloque de codigo.
+- `Tipo:` tambien puede ser `columnas`, `ruta`, `frase`, `diagrama`, `actividad` o `repositorio`.
 - Si Pexels falla o no hay API key, el sistema genera la diapositiva con diseno alternativo.
+
+## Estilos disponibles
+
+- `academico_formal`
+- `tecnologico_oscuro`
+- `alto_impacto`
+- `ingenieria_codigo`
+- `pizarra_matematica`
+- `laboratorio_redes`
+- `ciberseguridad`
+- `minimalista_claro`
+- `universitario_elegante`
+- `seminario_ejecutivo`
+- `taller_practico`
+- `modo_examen`
+- `clase_visual`
+
+## Tipos avanzados
+
+Usa `Tipo:` dentro de una diapositiva para cambiar su layout.
+
+```markdown
+## Diapositiva: Comparacion de conceptos
+
+Tipo: columnas
+
+Contenido:
+- Definicion del primer concepto.
+- Ventaja principal.
+- Riesgo o limitacion.
+- Definicion del segundo concepto.
+- Caso de uso.
+- Criterio de decision.
+```
+
+```markdown
+## Diapositiva: Ruta de aprendizaje
+
+Tipo: ruta
+
+Contenido:
+- Concepto base
+- Demostracion
+- Practica
+- Discusion
+- Evidencia final
+```
+
+```markdown
+## Diapositiva: Idea central
+
+Tipo: frase
+
+Objetivo: La tecnologia solo aporta valor cuando resuelve un problema real.
+
+Contenido:
+- Criterio para discutir en clase.
+```
+
+```markdown
+## Diapositiva: Mapa conceptual
+
+Tipo: diagrama
+
+Contenido:
+- Nodo principal 1
+- Nodo principal 2
+- Nodo principal 3
+- Nodo principal 4
+```
+
+```markdown
+## Diapositiva: Laboratorio en clase
+
+Tipo: actividad
+
+Objetivo: Aplicar el concepto en equipos.
+
+Contenido:
+- Formar grupos de trabajo.
+- Resolver el caso propuesto.
+- Presentar una evidencia.
+```
+
+```markdown
+## Diapositiva: Recursos de apoyo
+
+Tipo: repositorio
+
+Contenido:
+- Lectura recomendada
+- Documentacion oficial
+- Video de apoyo
+- Practica sugerida
+```

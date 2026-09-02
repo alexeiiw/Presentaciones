@@ -4,6 +4,8 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
+from biblioteca_imagenes import actualizar_estado, leer_index
+from estilos import nombres_estilos
 from generador_clases import generar_presentacion
 from parser_markdown import parsear_markdown
 
@@ -64,6 +66,17 @@ def latencia_promedio(mediciones_ms):
 ```
 
 Imagen: programming code network
+
+## Diapositiva: Ruta de aprendizaje
+
+Tipo: ruta
+
+Contenido:
+- Concepto base
+- Demostracion guiada
+- Practica individual
+- Discusion tecnica
+- Evidencia final
 """
 
 
@@ -120,16 +133,7 @@ with st.sidebar:
     nombre_archivo = st.text_input("Nombre del archivo", value="presentacion_clase")
     estilo = st.selectbox(
         "Estilo visual",
-        [
-            "academico_formal",
-            "tecnologico_oscuro",
-            "alto_impacto",
-            "ingenieria_codigo",
-            "pizarra_matematica",
-            "laboratorio_redes",
-            "ciberseguridad",
-            "minimalista_claro",
-        ],
+        nombres_estilos(),
         index=1,
     )
     modo_imagen = st.selectbox(
@@ -156,34 +160,70 @@ with st.sidebar:
         os.environ["PIXABAY_API_KEY"] = pixabay_key.strip()
     st.info("Las claves se pueden pegar aqui, guardarlas en .env o exportarlas como variables de entorno.")
 
-st.subheader("Contenido fuente")
-markdown = st.text_area("Contenido de la clase en Markdown", key="markdown_clase", height=560)
+tab_editor, tab_curador = st.tabs(["Generador", "Curador de imagenes"])
 
-col1, col2 = st.columns([1, 1])
-generar = col1.button("Generar presentacion", type="primary")
-col2.button("Limpiar contenido", on_click=limpiar_contenido)
+with tab_editor:
+    st.subheader("Contenido fuente")
+    markdown = st.text_area("Contenido de la clase en Markdown", key="markdown_clase", height=560)
 
-if generar:
-    if not markdown.strip():
-        st.error("Pega el contenido de la clase antes de generar.")
-    else:
-        try:
-            clase = parsear_markdown(markdown)
-            salida = Path("salidas") / f"{nombre_archivo.strip() or 'presentacion_clase'}.pptx"
-            ruta = generar_presentacion(
-                clase,
-                salida,
-                estilo_nombre=estilo,
-                modo_imagen=modo_imagen,
-                distribucion=distribucion,
-            )
-            st.success(f"Presentacion generada: {ruta}")
-            with open(ruta, "rb") as archivo:
-                st.download_button(
-                    "Descargar PPTX",
-                    data=archivo,
-                    file_name=ruta.name,
-                    mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    col1, col2 = st.columns([1, 1])
+    generar = col1.button("Generar presentacion", type="primary")
+    col2.button("Limpiar contenido", on_click=limpiar_contenido)
+
+    if generar:
+        if not markdown.strip():
+            st.error("Pega el contenido de la clase antes de generar.")
+        else:
+            try:
+                clase = parsear_markdown(markdown)
+                salida = Path("salidas") / f"{nombre_archivo.strip() or 'presentacion_clase'}.pptx"
+                ruta = generar_presentacion(
+                    clase,
+                    salida,
+                    estilo_nombre=estilo,
+                    modo_imagen=modo_imagen,
+                    distribucion=distribucion,
                 )
-        except Exception as exc:
-            st.error(f"No se pudo generar la presentacion: {exc}")
+                st.success(f"Presentacion generada: {ruta}")
+                with open(ruta, "rb") as archivo:
+                    st.download_button(
+                        "Descargar PPTX",
+                        data=archivo,
+                        file_name=ruta.name,
+                        mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                    )
+            except Exception as exc:
+                st.error(f"No se pudo generar la presentacion: {exc}")
+
+with tab_curador:
+    st.subheader("Biblioteca local")
+    registros = leer_index()
+    if not registros:
+        st.info("Aun no hay imagenes descargadas en la biblioteca local.")
+    else:
+        st.caption("Marca como favorita o aprobada para priorizarla. Marca como rechazada para excluirla de futuras presentaciones.")
+        estados = ["pendiente", "aprobada", "favorita", "rechazada"]
+        for indice, registro in enumerate(registros):
+            titulo_registro = f"{indice + 1:03d} | {registro.get('keyword', 'sin keyword')} | {registro.get('proveedor', 'local')}"
+            with st.expander(titulo_registro):
+                archivo_valor = registro.get("archivo", "")
+                archivo = Path(archivo_valor) if archivo_valor else None
+                col_img, col_meta = st.columns([1, 2])
+                if archivo and archivo.exists() and archivo.is_file():
+                    col_img.image(str(archivo), use_container_width=True)
+                else:
+                    col_img.warning("Archivo no encontrado")
+                col_meta.write(f"**Archivo:** `{registro.get('archivo', '')}`")
+                col_meta.write(f"**Usos:** {registro.get('usos', 0)}")
+                if registro.get("url"):
+                    col_meta.write(f"**URL:** {registro.get('url')}")
+                estado_actual = registro.get("estado", "pendiente")
+                estado = col_meta.selectbox(
+                    "Estado",
+                    estados,
+                    index=estados.index(estado_actual) if estado_actual in estados else 0,
+                    key=f"estado_imagen_{indice}",
+                )
+                if col_meta.button("Guardar estado", key=f"guardar_estado_{indice}"):
+                    actualizar_estado(indice, estado)
+                    st.success("Estado actualizado.")

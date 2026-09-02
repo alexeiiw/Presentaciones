@@ -100,6 +100,8 @@ Por defecto, las imagenes descargadas y `biblioteca_imagenes/index.json` no se s
 
 El archivo `biblioteca_imagenes/index.example.json` muestra la estructura esperada del indice.
 
+Desde la pestaña `Curador de imagenes` puedes marcar cada imagen como `favorita`, `aprobada`, `pendiente` o `rechazada`. El generador prioriza favoritas y aprobadas, y excluye rechazadas.
+
 ## Distribuciones
 
 - `alternada`: cambia imagen derecha/izquierda de forma ordenada.
@@ -116,12 +118,35 @@ El archivo `biblioteca_imagenes/index.example.json` muestra la estructura espera
 - `laboratorio_redes`
 - `ciberseguridad`
 - `minimalista_claro`
+- `universitario_elegante`
+- `seminario_ejecutivo`
+- `taller_practico`
+- `modo_examen`
+- `clase_visual`
+
+## Tipos de diapositiva
+
+- `contenido`: layout general con bullets e imagen/diseno.
+- `codigo`: bloque de codigo con soporte para triple backtick.
+- `columnas`: divide bullets en dos paneles.
+- `ruta`: muestra una secuencia de pasos.
+- `frase`: resalta una idea central a gran escala.
+- `diagrama`: organiza bullets como mapa conceptual simple.
+- `actividad`: estructura instrucciones, evidencia y cierre.
+- `repositorio`: presenta recursos o enlaces como tarjetas.
 
 ## Formato de entrada
 
 Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 
 ## Historial de Cambios
+
+### v0.6
+
+- Se agregaron cinco estilos visuales nuevos.
+- Se agregaron tipos avanzados de diapositiva con `Tipo:`.
+- Se agrego curador basico de imagenes en Streamlit.
+- La biblioteca ahora prioriza imagenes favoritas/aprobadas y evita rechazadas.
 
 ### v0.5
 
