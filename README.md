@@ -56,6 +56,8 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 
 Puedes subir imagenes al Codespace dentro de `assets/` y usarlas directamente desde el Markdown.
 
+Para presentaciones UMG, la recomendacion operativa es usar `images.jpg` como imagen institucional a color y `Umg.png` como logo institucional en blanco y negro o version alternativa segun convenga al estilo visual. La seleccion y curacion final de imagenes queda a criterio del docente.
+
 Ejemplo para la portada:
 
 ```markdown

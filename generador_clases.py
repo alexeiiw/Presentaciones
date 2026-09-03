@@ -122,14 +122,15 @@ def _crear_diapositiva_cierre(prs: Presentation, aprendizajes: list[str], frase:
     _agregar_banda_visual(slide, estilo)
     _texto(slide, "Esto fue lo que aprendiste", Inches(0.75), Inches(0.65), Inches(8.0), Inches(0.8), 34, estilo.titulo, estilo.fuente_titulo, negrita=True)
     _linea_acento(slide, estilo, Inches(0.75), Inches(1.55), Inches(2.0))
-    _bullets(slide, aprendizajes[:5], Inches(1.0), Inches(2.0), Inches(7.5), Inches(3.0), estilo)
+    _bullets(slide, aprendizajes[:5], Inches(1.0), Inches(1.95), Inches(7.5), Inches(3.25), estilo)
 
     frase = frase or "El conocimiento se consolida cuando puedes explicarlo, aplicarlo y mejorarlo."
-    caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(5.65), Inches(8.0), Inches(0.95))
+    caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(5.45), Inches(8.0), Inches(1.35))
     caja.fill.solid()
     caja.fill.fore_color.rgb = estilo.caja
     caja.line.color.rgb = estilo.acento
-    _texto(slide, frase, Inches(1.05), Inches(5.84), Inches(7.45), Inches(0.5), 17, estilo.acento, estilo.fuente_texto, negrita=True)
+    tam_frase = 15 if len(frase) > 120 else 17
+    _texto(slide, frase, Inches(1.05), Inches(5.68), Inches(7.45), Inches(0.82), tam_frase, estilo.acento, estilo.fuente_texto, negrita=True)
 
 
 def _tarjeta_item(slide, numero: int, texto: str, estilo: EstiloPresentacion, x, y, w, h) -> None:
@@ -137,7 +138,7 @@ def _tarjeta_item(slide, numero: int, texto: str, estilo: EstiloPresentacion, x,
     caja.fill.solid()
     caja.fill.fore_color.rgb = estilo.caja
     caja.line.color.rgb = estilo.acento
-    tam = 12 if len(texto) > 70 else 14
+    tam = _tam_texto_para_bloque([texto], base=14, minimo=10)
     _texto(slide, f"{numero:02d}. {texto}", x + Inches(0.16), y + Inches(0.08), w - Inches(0.28), h - Inches(0.08), tam, estilo.texto, estilo.fuente_texto)
 
 
@@ -300,7 +301,7 @@ def _crear_diapositiva_columnas(prs: Presentation, d: Diapositiva, estilo: Estil
         caja.fill.fore_color.rgb = estilo.caja
         caja.line.color.rgb = estilo.acento
         _texto(slide, "Idea clave" if col == 0 else "Aplicacion", x + Inches(0.25), Inches(2.05), Inches(5.0), Inches(0.45), 16, estilo.acento, estilo.fuente_texto, negrita=True)
-        _bullets(slide, bloque[:5], x + Inches(0.35), Inches(2.65), Inches(4.85), Inches(3.55), estilo)
+        _bullets(slide, bloque[:5], x + Inches(0.35), Inches(2.55), Inches(4.85), Inches(3.85), estilo)
 
 
 def _crear_diapositiva_ruta(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
@@ -362,7 +363,7 @@ def _crear_diapositiva_diagrama(prs: Presentation, d: Diapositiva, estilo: Estil
         caja.fill.solid()
         caja.fill.fore_color.rgb = estilo.caja
         caja.line.color.rgb = estilo.acento
-        _texto_ajustado(slide, item, Inches(x + 0.2), Inches(y + 0.16), Inches(3.0), Inches(0.72), estilo.texto, estilo.fuente_texto, base=11)
+        _texto_ajustado(slide, item, Inches(x + 0.18), Inches(y + 0.14), Inches(3.08), Inches(0.95), estilo.texto, estilo.fuente_texto, base=10)
 
 
 def _crear_diapositiva_actividad(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
@@ -372,14 +373,15 @@ def _crear_diapositiva_actividad(prs: Presentation, d: Diapositiva, estilo: Esti
     _texto(slide, d.objetivo or "Actividad guiada para aplicar el concepto en clase.", Inches(0.85), Inches(1.65), Inches(11.4), Inches(0.55), 17, estilo.acento, estilo.fuente_texto, negrita=True)
     etiquetas = ["Instrucciones", "Evidencia", "Cierre"]
     items = d.contenido or ["Resolver en equipos", "Compartir resultado", "Discutir hallazgos"]
+    grupos = _repartir_en_grupos(items, len(etiquetas))
     for idx, etiqueta in enumerate(etiquetas):
         x = Inches(0.85 + idx * 4.15)
-        caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, Inches(2.55), Inches(3.55), Inches(3.4))
+        caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, Inches(2.42), Inches(3.55), Inches(3.85))
         caja.fill.solid()
         caja.fill.fore_color.rgb = estilo.caja
         caja.line.color.rgb = estilo.acento
-        _texto(slide, etiqueta, x + Inches(0.25), Inches(2.85), Inches(3.0), Inches(0.45), 17, estilo.titulo, estilo.fuente_texto, negrita=True)
-        _bullets(slide, items[idx::3][:3], x + Inches(0.3), Inches(3.45), Inches(2.95), Inches(1.8), estilo)
+        _texto(slide, etiqueta, x + Inches(0.25), Inches(2.72), Inches(3.0), Inches(0.45), 17, estilo.titulo, estilo.fuente_texto, negrita=True)
+        _bullets(slide, grupos[idx], x + Inches(0.3), Inches(3.28), Inches(2.95), Inches(2.55), estilo)
 
 
 def _crear_diapositiva_repositorio(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
@@ -387,10 +389,13 @@ def _crear_diapositiva_repositorio(prs: Presentation, d: Diapositiva, estilo: Es
     _pintar_fondo(slide, estilo.fondo)
     _encabezado(slide, d, estilo)
     _texto(slide, d.objetivo or "Repositorio de recursos para continuar el aprendizaje.", Inches(0.85), Inches(1.65), Inches(11.4), Inches(0.5), 16, estilo.texto, estilo.fuente_texto)
-    for idx, item in enumerate((d.contenido or [])[:6]):
+    items = (d.contenido or [])[:6]
+    alto_tarjeta = Inches(0.95 if any(len(item) > 95 for item in items) else 0.8)
+    salto_y = Inches(1.35 if alto_tarjeta > Inches(0.8) else 1.25)
+    for idx, item in enumerate(items):
         col = idx % 2
         fila = idx // 2
-        _tarjeta_item(slide, idx + 1, item, estilo, Inches(0.85 + col * 6.0), Inches(2.45 + fila * 1.25), Inches(5.4), Inches(0.8))
+        _tarjeta_item(slide, idx + 1, item, estilo, Inches(0.85 + col * 6.0), Inches(2.35) + fila * salto_y, Inches(5.4), alto_tarjeta)
 
 
 def _pintar_fondo(slide, color: RGBColor) -> None:
@@ -447,6 +452,29 @@ def _texto_ajustado(slide, texto: str, x, y, w, h, color: RGBColor, fuente: str,
     _texto(slide, texto, x, y, w, h, tam, color, fuente, negrita=negrita)
 
 
+def _repartir_en_grupos(items: list[str], cantidad: int) -> list[list[str]]:
+    grupos: list[list[str]] = []
+    tamano = max(1, (len(items) + cantidad - 1) // cantidad)
+    for inicio in range(0, cantidad * tamano, tamano):
+        grupos.append(items[inicio : inicio + tamano])
+    return grupos[:cantidad]
+
+
+def _tam_texto_para_bloque(items: list[str], base: int = 18, minimo: int = 11) -> int:
+    total = sum(len(item) for item in items)
+    maximo = max((len(item) for item in items), default=0)
+    cantidad = len(items)
+    if total > 560 or maximo > 135 or cantidad > 5:
+        return max(minimo, base - 4)
+    if total > 420 or maximo > 105 or cantidad > 4:
+        return max(minimo, base - 3)
+    if total > 300 or maximo > 85:
+        return max(minimo, base - 2)
+    if total > 220 or maximo > 65:
+        return max(minimo, base - 1)
+    return base
+
+
 def _caja_objetivo(slide, objetivo: str, estilo: EstiloPresentacion, x, y, w, h) -> None:
     caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, y, w, h)
     caja.fill.solid()
@@ -460,14 +488,16 @@ def _bullets(slide, bullets: list[str], x, y, w, h, estilo: EstiloPresentacion) 
     tf = box.text_frame
     tf.word_wrap = True
     tf.clear()
+    tam = _tam_texto_para_bloque(bullets)
+    espacio = 5 if tam <= 15 else 8
     for idx, item in enumerate(bullets):
         p = tf.paragraphs[0] if idx == 0 else tf.add_paragraph()
         p.text = _limpiar_texto(item)
         p.level = 0
-        p.font.size = Pt(18)
+        p.font.size = Pt(tam)
         p.font.name = estilo.fuente_texto
         p.font.color.rgb = estilo.texto
-        p.space_after = Pt(8)
+        p.space_after = Pt(espacio)
 
 
 def _bloque_codigo(slide, codigo: str, estilo: EstiloPresentacion, x, y, w, h) -> None:

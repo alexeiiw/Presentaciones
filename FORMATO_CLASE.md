@@ -102,6 +102,7 @@ Imagen: programming code
 - `# Clase:` define el titulo de la presentacion.
 - `Imagen Portada:` o `Imagen Universidad:` puede ser una ruta local como `assets/universidad_umg.jpg`, solo el nombre como `universidad_umg.jpg`, o una busqueda para Pexels/Pixabay.
 - `Logo Portada:` o `Logo Universidad:` puede ser una ruta local como `assets/logo_umg.png` o solo el nombre como `logo_umg.png` si esta dentro de `assets/`.
+- Para presentaciones UMG, se recomienda usar `Imagen Portada: images.jpg` y `Logo Portada: Umg.png` cuando esos archivos esten disponibles en `assets/` o en la ruta local de trabajo.
 - `Agenda:` crea una diapositiva automatica con puntos de clase.
 - `Contenido Presentacion:` crea una diapositiva automatica con la estructura del material.
 - Cada item de `Contenido Presentacion:` debe estar desarrollado por al menos una diapositiva posterior.
