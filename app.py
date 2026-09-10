@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 from biblioteca_imagenes import actualizar_estado, leer_index
 from estilos import nombres_estilos
+from exportadores import convertir_pptx_a_pdf
 from generador_clases import generar_presentacion
 from parser_markdown import parsear_markdown
 
@@ -106,7 +107,7 @@ st.markdown(
     </style>
     <div class="main-title">
         <h1>Generador de presentaciones academicas</h1>
-        <p>Markdown estructurado, imagenes reutilizables, estilos visuales y salida PowerPoint lista para clase.</p>
+        <p>Markdown estructurado, imagenes reutilizables, estilos visuales, salida PowerPoint y PDF opcional.</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -115,7 +116,7 @@ st.markdown(
 st.markdown(
     """
     <div class="panel-note">
-    Flujo recomendado: escribe la clase en Markdown, define agenda y aprendizajes, selecciona estilo, genera el PPTX y descargalo.
+    Flujo recomendado: escribe la clase en Markdown, genera primero el PPTX y luego crea el PDF opcional si lo necesitas.
     </div>
     """,
     unsafe_allow_html=True,
@@ -123,10 +124,29 @@ st.markdown(
 
 if "markdown_clase" not in st.session_state:
     st.session_state.markdown_clase = EJEMPLO
+if "pptx_generado" not in st.session_state:
+    st.session_state.pptx_generado = None
+if "pdf_generado" not in st.session_state:
+    st.session_state.pdf_generado = None
 
 
 def limpiar_contenido() -> None:
     st.session_state.markdown_clase = ""
+    st.session_state.pptx_generado = None
+    st.session_state.pdf_generado = None
+
+
+def contar_diapositivas_estimadas(clase) -> int:
+    total = 1
+    if clase.agenda:
+        total += (len(clase.agenda) + 6) // 7
+    contenido = clase.contenido_presentacion or [d.titulo for d in clase.diapositivas]
+    if contenido:
+        total += (len(contenido) + 9) // 10
+    total += len(clase.diapositivas)
+    if clase.aprendizajes or clase.frase_final:
+        total += 1
+    return total
 
 with st.sidebar:
     st.header("Configuracion de salida")
@@ -184,16 +204,42 @@ with tab_editor:
                     modo_imagen=modo_imagen,
                     distribucion=distribucion,
                 )
+                st.session_state.pptx_generado = str(ruta)
+                st.session_state.pdf_generado = None
                 st.success(f"Presentacion generada: {ruta}")
-                with open(ruta, "rb") as archivo:
-                    st.download_button(
-                        "Descargar PPTX",
-                        data=archivo,
-                        file_name=ruta.name,
-                        mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                    )
+                st.caption(f"Diapositivas generadas: {contar_diapositivas_estimadas(clase)}")
             except Exception as exc:
                 st.error(f"No se pudo generar la presentacion: {exc}")
+
+    pptx_generado = Path(st.session_state.pptx_generado) if st.session_state.pptx_generado else None
+    if pptx_generado and pptx_generado.exists():
+        st.divider()
+        st.subheader("Descargas")
+        with open(pptx_generado, "rb") as archivo:
+            st.download_button(
+                "Descargar PPTX",
+                data=archivo,
+                file_name=pptx_generado.name,
+                mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            )
+        st.info("El PDF se genera despues del PPTX. Revisa visualmente el PDF antes de publicarlo porque LibreOffice puede variar levemente la fidelidad.")
+        if st.button("Generar PDF desde este PPTX"):
+            resultado_pdf = convertir_pptx_a_pdf(pptx_generado)
+            if resultado_pdf.ok and resultado_pdf.ruta:
+                st.session_state.pdf_generado = str(resultado_pdf.ruta)
+                st.success(resultado_pdf.mensaje)
+            else:
+                st.warning(resultado_pdf.mensaje)
+
+    pdf_generado = Path(st.session_state.pdf_generado) if st.session_state.pdf_generado else None
+    if pdf_generado and pdf_generado.exists():
+        with open(pdf_generado, "rb") as archivo_pdf:
+            st.download_button(
+                "Descargar PDF",
+                data=archivo_pdf,
+                file_name=pdf_generado.name,
+                mime="application/pdf",
+            )
 
 with tab_curador:
     st.subheader("Biblioteca local")

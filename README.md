@@ -8,6 +8,16 @@ Generador de presentaciones academicas de alto impacto usando Python, Streamlit,
 pip install -r requirements.txt
 ```
 
+Para exportar tambien a PDF sin PowerPoint, instala LibreOffice en el Codespace:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libreoffice
+libreoffice --version
+```
+
+La generacion de PPTX no requiere LibreOffice. LibreOffice solo se usa cuando se pide crear PDF.
+
 ## Configuracion de Pexels
 
 La aplicacion lee las claves desde variables de entorno.
@@ -42,6 +52,12 @@ streamlit run app.py
 python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes_computadoras.pptx --estilo tecnologico_oscuro
 ```
 
+Para generar PPTX y luego PDF desde terminal:
+
+```bash
+python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes_computadoras.pptx --estilo tecnologico_oscuro --pdf
+```
+
 ## Uso
 
 - Pega el Markdown de la clase.
@@ -49,8 +65,10 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 - Selecciona estilo visual.
 - Selecciona modo de imagen.
 - Selecciona distribucion de diapositivas.
-- Genera y descarga el archivo `.pptx`.
-- El archivo tambien queda guardado dentro de `salidas/`.
+- Genera y descarga primero el archivo `.pptx`.
+- Si necesitas PDF, usa la opcion `Generar PDF desde este PPTX` despues de crear la presentacion.
+- Los archivos quedan guardados dentro de `salidas/`.
+- Los `.pptx` y `.pdf` generados en `salidas/` estan excluidos de Git por defecto.
 
 ## Imagenes Locales
 
@@ -147,6 +165,16 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 Antes de generar, valida el checklist de calidad del formato para evitar diapositivas vacias, temas inconclusos o layouts repetitivos.
 
 ## Historial de Cambios
+
+### v0.7
+
+- Se agrego exportacion opcional a PDF mediante LibreOffice headless.
+- La interfaz mantiene el PPTX como descarga principal y permite generar PDF despues.
+- La terminal acepta `--pdf` para convertir el PPTX generado.
+- Se agrego `exportadores.py` para aislar deteccion y conversion con LibreOffice.
+- Los PDF generados en `salidas/` y `temp/` quedan excluidos de Git.
+- Se mejoro el ajuste de texto en diapositivas densas, actividades y cierre.
+- Se documento la instalacion de LibreOffice en Codespaces.
 
 ### v0.6
 

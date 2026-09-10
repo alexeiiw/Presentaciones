@@ -3,6 +3,8 @@ claves.txt
 temp/*
 !temp/.gitkeep
 salidas/*.pptx
+salidas/*.pdf
+temp/*.pdf
 assets/*
 !assets/.gitkeep
 biblioteca_imagenes/imagenes/*

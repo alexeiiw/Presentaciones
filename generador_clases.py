@@ -125,12 +125,12 @@ def _crear_diapositiva_cierre(prs: Presentation, aprendizajes: list[str], frase:
     _bullets(slide, aprendizajes[:5], Inches(1.0), Inches(1.95), Inches(7.5), Inches(3.25), estilo)
 
     frase = frase or "El conocimiento se consolida cuando puedes explicarlo, aplicarlo y mejorarlo."
-    caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(5.45), Inches(8.0), Inches(1.35))
+    caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(5.2), Inches(8.0), Inches(1.55))
     caja.fill.solid()
     caja.fill.fore_color.rgb = estilo.caja
     caja.line.color.rgb = estilo.acento
-    tam_frase = 15 if len(frase) > 120 else 17
-    _texto(slide, frase, Inches(1.05), Inches(5.68), Inches(7.45), Inches(0.82), tam_frase, estilo.acento, estilo.fuente_texto, negrita=True)
+    tam_frase = 13 if len(frase) > 120 else 16
+    _texto(slide, frase, Inches(1.05), Inches(5.42), Inches(7.45), Inches(1.05), tam_frase, estilo.acento, estilo.fuente_texto, negrita=True)
 
 
 def _tarjeta_item(slide, numero: int, texto: str, estilo: EstiloPresentacion, x, y, w, h) -> None:
@@ -376,12 +376,12 @@ def _crear_diapositiva_actividad(prs: Presentation, d: Diapositiva, estilo: Esti
     grupos = _repartir_en_grupos(items, len(etiquetas))
     for idx, etiqueta in enumerate(etiquetas):
         x = Inches(0.85 + idx * 4.15)
-        caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, Inches(2.42), Inches(3.55), Inches(3.85))
+        caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, Inches(2.28), Inches(3.55), Inches(4.3))
         caja.fill.solid()
         caja.fill.fore_color.rgb = estilo.caja
         caja.line.color.rgb = estilo.acento
-        _texto(slide, etiqueta, x + Inches(0.25), Inches(2.72), Inches(3.0), Inches(0.45), 17, estilo.titulo, estilo.fuente_texto, negrita=True)
-        _bullets(slide, grupos[idx], x + Inches(0.3), Inches(3.28), Inches(2.95), Inches(2.55), estilo)
+        _texto(slide, etiqueta, x + Inches(0.25), Inches(2.56), Inches(3.0), Inches(0.42), 16, estilo.titulo, estilo.fuente_texto, negrita=True)
+        _bullets(slide, grupos[idx], x + Inches(0.3), Inches(3.05), Inches(2.95), Inches(3.0), estilo)
 
 
 def _crear_diapositiva_repositorio(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
@@ -488,8 +488,10 @@ def _bullets(slide, bullets: list[str], x, y, w, h, estilo: EstiloPresentacion) 
     tf = box.text_frame
     tf.word_wrap = True
     tf.clear()
-    tam = _tam_texto_para_bloque(bullets)
-    espacio = 5 if tam <= 15 else 8
+    tam = _tam_texto_para_bloque(bullets, base=16, minimo=9)
+    if len(bullets) >= 4 or sum(len(item) for item in bullets) > 260:
+        tam = max(8, tam - 1)
+    espacio = 3 if tam <= 12 else 5 if tam <= 15 else 7
     for idx, item in enumerate(bullets):
         p = tf.paragraphs[0] if idx == 0 else tf.add_paragraph()
         p.text = _limpiar_texto(item)

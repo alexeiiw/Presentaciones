@@ -28,3 +28,29 @@ python3 -m streamlit run app.py
 ## Alternativa en la interfaz
 
 La barra lateral de Streamlit permite pegar `PEXELS_API_KEY` y `PIXABAY_API_KEY` para la sesion actual.
+
+## Exportacion a PDF con LibreOffice
+
+La aplicacion genera PPTX con `python-pptx`. Para convertir ese PPTX a PDF sin Microsoft PowerPoint, usa LibreOffice en modo headless.
+
+En GitHub Codespaces instala LibreOffice asi:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libreoffice
+libreoffice --version
+```
+
+Uso manual de referencia:
+
+```bash
+libreoffice --headless --convert-to pdf --outdir salidas salidas/presentacion_clase.pptx
+```
+
+Notas operativas:
+
+- El PPTX se genera primero y no depende de LibreOffice.
+- El PDF se crea despues desde el PPTX generado.
+- Si LibreOffice no esta instalado, la aplicacion conserva el PPTX y muestra una advertencia.
+- Revisa visualmente el PDF antes de publicarlo, porque la fidelidad puede variar levemente respecto a PowerPoint.
+- Los PDF generados en `salidas/` estan excluidos de Git por defecto.
