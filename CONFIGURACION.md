@@ -31,6 +31,14 @@ La barra lateral de Streamlit permite pegar `PEXELS_API_KEY` y `PIXABAY_API_KEY`
 
 ## Exportacion a PDF con LibreOffice
 
+Para abrir la interfaz web del proyecto, usa desde la raiz:
+
+```bash
+python maestro.py
+```
+
+El script maestro ejecuta `app.py` con Streamlit y mantiene la raiz del proyecto como directorio de trabajo.
+
 La aplicacion genera PPTX con `python-pptx`. Para convertir ese PPTX a PDF sin Microsoft PowerPoint, usa LibreOffice en modo headless.
 
 En GitHub Codespaces instala LibreOffice asi:

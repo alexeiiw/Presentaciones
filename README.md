@@ -2,6 +2,25 @@
 
 Generador de presentaciones academicas de alto impacto usando Python, Streamlit, python-pptx, biblioteca local de imagenes, Pexels y Pixabay.
 
+Version actual: `v0.8`
+
+## Estructura del proyecto
+
+```text
+Presentaciones/
+├── maestro.py                 # Entrada recomendada para abrir la interfaz web
+├── app.py                     # Interfaz Streamlit
+├── generar_desde_md.py        # Entrada para generar desde terminal
+├── motor/                     # Modulos internos del generador
+├── ejemplos/                  # Markdown de referencia
+├── assets/                    # Assets locales
+├── biblioteca_imagenes/       # Biblioteca e indice local ignorado
+├── salidas/                   # PPTX y PDF generados, ignorados por Git
+└── temp/                      # Archivos temporales, ignorados por Git
+```
+
+La raiz conserva solo los puntos de entrada y la documentacion principal. La logica interna vive en `motor/`.
+
 ## Instalacion en GitHub Codespaces
 
 ```bash
@@ -173,6 +192,15 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 Antes de generar, valida el checklist de calidad del formato para evitar diapositivas vacias, temas inconclusos o layouts repetitivos.
 
 ## Historial de Cambios
+
+### v0.8
+
+- Se agrego `maestro.py` como lanzador unico de la interfaz web.
+- Se organizaron los modulos internos del generador dentro de `motor/`.
+- Se actualizaron los imports de Streamlit y del generador de terminal para usar el paquete `motor`.
+- El formato de presentaciones ya no exige ni genera actividades, tareas, laboratorios, preguntas guiadas o entregables.
+- Toda presentacion debe incluir fechas de parciales, `Que aprendiste` y `Que queda pendiente`, sin una seccion `Como continua el modulo`.
+- Se conservaron `ñ`, acentos y caracteres propios del español en los Markdown de presentacion.
 
 ### v0.7
 
