@@ -4,11 +4,11 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
-from biblioteca_imagenes import actualizar_estado, leer_index
-from estilos import nombres_estilos
-from exportadores import convertir_pptx_a_pdf
-from generador_clases import generar_presentacion
-from parser_markdown import parsear_markdown
+from motor.biblioteca_imagenes import actualizar_estado, leer_index
+from motor.estilos import nombres_estilos
+from motor.exportadores import convertir_pptx_a_pdf
+from motor.generador_clases import generar_presentacion
+from motor.parser_markdown import parsear_markdown
 
 
 load_dotenv()

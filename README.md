@@ -46,6 +46,14 @@ Mas detalle en `CONFIGURACION.md`.
 streamlit run app.py
 ```
 
+Tambien puedes iniciar la interfaz desde el script maestro:
+
+```bash
+python maestro.py
+```
+
+`maestro.py` es el punto de entrada recomendado para abrir la pagina web. Los modulos internos del generador se encuentran en `motor/`; `app.py` y `generar_desde_md.py` se conservan como puntos de entrada visibles.
+
 ## Generar desde terminal
 
 ```bash

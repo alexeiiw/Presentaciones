@@ -3,9 +3,9 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from exportadores import convertir_pptx_a_pdf, normalizar_salida_pptx
-from generador_clases import generar_presentacion
-from parser_markdown import parsear_markdown
+from motor.exportadores import convertir_pptx_a_pdf, normalizar_salida_pptx
+from motor.generador_clases import generar_presentacion
+from motor.parser_markdown import parsear_markdown
 
 
 def main() -> None:
