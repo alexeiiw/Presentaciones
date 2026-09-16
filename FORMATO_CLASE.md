@@ -12,21 +12,25 @@ Usa este formato para pegar el contenido en la interfaz web. Si un LLM genera el
 - Usa `Tipo: frase` para ideas centrales, principios de ingenieria, advertencias importantes o transiciones entre secciones.
 - Usa `Tipo: seccion` para separar bloques grandes de la clase, por ejemplo pasar de USB a almacenamiento interno.
 - Usa `Tipo: diagrama` para mapas conceptuales, componentes de arquitectura, relaciones entre capas, buses, controladores, hosts, dispositivos o protocolos.
-- Usa `Tipo: actividad` para ejercicios de clase, analisis en grupo, mini laboratorio, preguntas guiadas o trabajo aplicado.
+- No incluyas actividades, tareas, laboratorios, preguntas guiadas ni entregables dentro de la presentacion, aunque el programa los sugiera.
 - Usa `Tipo: repositorio` para recursos finales, comandos, enlaces, lecturas, herramientas, documentacion o checklist de estudio.
 - Usa `Tipo: codigo` solo cuando exista codigo real entre triple backtick.
 - Nunca dejes una diapositiva con solo `## Diapositiva:` salvo que tenga `Tipo: seccion` y funcione como separador intencional.
 - Todo bloque listado en `Contenido Presentacion:` debe tener al menos una diapositiva desarrollada despues.
-- Si anuncias un tema en agenda, tambien debe aparecer en el contenido o en una actividad de cierre.
-- No termines la clase inmediatamente despues de una seccion nueva; desarrolla el bloque con contenido, comparativa, diagrama, actividad o repositorio.
+- Si anuncias un tema en agenda, tambien debe aparecer desarrollado en el contenido o en la sintesis de cierre.
+- No termines la clase inmediatamente despues de una seccion nueva; desarrolla el bloque con contenido, comparativa, diagrama o repositorio.
 - Cada diapositiva debe tener maximo 6 bullets en `Contenido:`. Si hay mas, divide en varias diapositivas.
 - Escribe bullets completos, tecnicos y explicativos; evita frases vagas como "concepto importante".
 - Para `Imagen:`, escribe keywords especificas en ingles. Evita keywords genericas como `technology`, `math`, `computer` o `education`.
 - Para temas tecnicos, prefiere keywords concretas como `usb type c connector close up`, `sata data cable motherboard`, `parallel ide cable`, `serial communication oscilloscope`, `printed circuit board data bus`.
-- Incluye al menos una diapositiva `Tipo: actividad` antes del cierre.
+- No generes diapositivas `Tipo: actividad`; el cierre debe ser una sintesis conceptual.
 - Incluye al menos dos diapositivas visuales avanzadas entre `columnas`, `ruta` o `diagrama` por cada 10 diapositivas de contenido.
-- Para clases tecnicas, incluye al menos una comparativa `Tipo: columnas`, una secuencia `Tipo: ruta`, un mapa `Tipo: diagrama` y una practica `Tipo: actividad`.
+- Para clases tecnicas, incluye al menos una comparativa `Tipo: columnas`, una secuencia `Tipo: ruta` y un mapa `Tipo: diagrama`.
 - Usa formulas en texto simple cuando sean necesarias, pero mantenlas cortas y explicadas.
+- Toda presentacion debe incluir una diapositiva de fechas de parciales relevantes.
+- Toda presentacion debe terminar con una diapositiva `Que aprendiste` y otra `Que queda pendiente`.
+- No incluyas una seccion `Como continua el modulo`.
+- Conserva la letra `ñ`, las vocales acentuadas y los demas caracteres propios del español.
 
 ## Checklist de calidad antes de generar
 
@@ -37,7 +41,9 @@ Usa este formato para pegar el contenido en la interfaz web. Si un LLM genera el
 - Hay al menos una comparativa tecnica con `Tipo: columnas`.
 - Hay al menos una secuencia, flujo o evolucion con `Tipo: ruta`.
 - Hay al menos un mapa conceptual o arquitectura con `Tipo: diagrama`.
-- Hay al menos una practica o discusion con `Tipo: actividad`.
+- No hay actividades, tareas, laboratorios, preguntas guiadas ni entregables en las diapositivas.
+- Existen diapositivas finales de `Que aprendiste` y `Que queda pendiente`.
+- Las fechas de parciales relevantes aparecen en una diapositiva independiente.
 - Hay una diapositiva final de recursos con `Tipo: repositorio` cuando la clase requiere seguimiento.
 - Las imagenes usan keywords tecnicas especificas en ingles.
 - Los bullets explican ideas completas y no son etiquetas sueltas.
@@ -56,14 +62,16 @@ Agenda:
 - Bienvenida y contexto de la semana
 - Revisión de conceptos previos
 - Desarrollo del tema central
-- Actividad practica
+- Sintesis conceptual y cierre
 
 Contenido Presentacion:
 - Bloque 1: Fundamentos conceptuales
 - Bloque 2: Desarrollo tecnico principal
 - Bloque 3: Comparativa o arquitectura
-- Bloque 4: Actividad practica
-- Bloque 5: Recursos y cierre
+- Bloque 4: Desarrollo tecnico complementario
+- Bloque 5: Fechas de parciales
+- Bloque 6: Que aprendiste y que queda pendiente
+- Bloque 7: Recursos y cierre
 
 Aprendizajes:
 - Primer aprendizaje esperado.
@@ -114,7 +122,7 @@ Imagen: programming code
 - `Contenido:` contiene bullets iniciados con `-`.
 - `Imagen:` puede ser una ruta local como `assets/diagrama_usb.png` o una busqueda en ingles para mejorar resultados en Pexels/Pixabay.
 - `Tipo: codigo` activa una diapositiva con bloque de codigo.
-- `Tipo:` tambien puede ser `columnas`, `ruta`, `frase`, `seccion`, `diagrama`, `actividad` o `repositorio`.
+- `Tipo:` tambien puede ser `columnas`, `ruta`, `frase`, `seccion`, `diagrama` o `repositorio`.
 - Si Pexels falla o no hay API key, el sistema genera la diapositiva con diseno alternativo.
 
 ## Estilos disponibles
