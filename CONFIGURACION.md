@@ -39,6 +39,40 @@ python maestro.py
 
 El script maestro ejecuta `app.py` con Streamlit y mantiene la raiz del proyecto como directorio de trabajo.
 
+## Diagramas en Markdown
+
+Las diapositivas con `Tipo: diagrama` pueden usar el campo `Diagrama:` para elegir el layout visual.
+
+Valores soportados:
+
+- `cdn`: arquitectura de distribucion de contenido con usuario, DNS/enrutamiento, borde, cache, origen e ISP/backbone.
+- `flujo`: proceso paso a paso o decision operativa.
+- `bloques`: bloques funcionales o componentes de un sistema.
+- `casos de uso`: actores y acciones principales alrededor de un sistema.
+- `secuencia`: pasos conectados en orden.
+- `arquitectura`: capas o componentes principales.
+- `topologia`: relacion entre nodos de red.
+- `mapa conceptual`: nodo central con conceptos relacionados.
+- `protocolo`: capas, mensajes o componentes de una estructura de comunicacion.
+
+Ejemplo minimo:
+
+```markdown
+## Diapositiva: Arquitectura de una CDN
+
+Tipo: diagrama
+
+Diagrama: cdn
+
+Contenido:
+- Usuario: solicita contenido desde una red de acceso.
+- DNS o enrutamiento: selecciona el punto de presencia.
+- Nodo de borde: entrega contenido cercano.
+- Cache: conserva copias validas.
+- Servidor de origen: mantiene la fuente principal.
+- ISP y backbone: transportan trafico entre los puntos.
+```
+
 La aplicacion genera PPTX con `python-pptx`. Para convertir ese PPTX a PDF sin Microsoft PowerPoint, usa LibreOffice en modo headless.
 
 En GitHub Codespaces instala LibreOffice asi:

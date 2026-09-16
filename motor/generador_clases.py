@@ -346,6 +346,20 @@ def _crear_diapositiva_frase(prs: Presentation, d: Diapositiva, estilo: EstiloPr
 
 
 def _crear_diapositiva_diagrama(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
+    tipo_diagrama = (d.diagrama or "mapa conceptual").strip().lower()
+    if tipo_diagrama in {"cdn", "content delivery network"}:
+        _crear_diagrama_cdn(prs, d, estilo)
+    elif tipo_diagrama in {"flujo", "flow", "flowchart", "secuencia", "sequence"}:
+        _crear_diagrama_flujo(prs, d, estilo)
+    elif tipo_diagrama in {"bloques", "bloque", "block", "blocks", "casos de uso", "caso de uso", "use case", "use cases"}:
+        _crear_diagrama_bloques(prs, d, estilo, tipo_diagrama)
+    elif tipo_diagrama in {"arquitectura", "topologia", "protocolo"}:
+        _crear_diagrama_arquitectura(prs, d, estilo)
+    else:
+        _crear_diagrama_mapa(prs, d, estilo)
+
+
+def _crear_diagrama_mapa(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
     _encabezado(slide, d, estilo)
@@ -364,6 +378,150 @@ def _crear_diapositiva_diagrama(prs: Presentation, d: Diapositiva, estilo: Estil
         caja.fill.fore_color.rgb = estilo.caja
         caja.line.color.rgb = estilo.acento
         _texto_ajustado(slide, item, Inches(x + 0.18), Inches(y + 0.14), Inches(3.08), Inches(0.95), estilo.texto, estilo.fuente_texto, base=10)
+
+
+def _crear_diagrama_cdn(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    _pintar_fondo(slide, estilo.fondo)
+    _encabezado(slide, d, estilo)
+    if d.objetivo:
+        _texto(slide, d.objetivo, Inches(0.75), Inches(1.35), Inches(11.8), Inches(0.45), 13, estilo.texto, estilo.fuente_texto)
+
+    items = [item for item in (d.contenido or []) if item]
+    etiquetas = [_separar_etiqueta(item) for item in items]
+    valores = {clave: texto for clave, texto in etiquetas}
+    usuario = _buscar_valor(valores, ["usuario", "cliente", "user"], "Usuario solicita contenido")
+    dns = _buscar_valor(valores, ["dns", "enrutamiento", "routing"], "DNS o enrutamiento selecciona borde")
+    borde = _buscar_valor(valores, ["nodo de borde", "borde", "edge"], "Nodo de borde entrega contenido")
+    cache = _buscar_valor(valores, ["cache"], "Cache guarda copias validas")
+    origen = _buscar_valor(valores, ["servidor de origen", "origen", "origin"], "Origen mantiene la fuente")
+    transporte = _buscar_valor(valores, ["isp", "backbone", "red", "transporte"], "ISP y backbone transportan trafico")
+
+    y = Inches(3.0)
+    posiciones = [
+        ("Usuario", usuario, Inches(0.65), y),
+        ("DNS", dns, Inches(2.8), y),
+        ("Borde", borde, Inches(5.05), y),
+        ("Cache", cache, Inches(7.3), y),
+        ("Origen", origen, Inches(9.55), y),
+    ]
+    for idx, (titulo, texto, x, pos_y) in enumerate(posiciones):
+        _nodo_diagrama(slide, titulo, texto, estilo, x, pos_y, Inches(1.85), Inches(1.35), resaltar=idx in {0, 2, 4})
+        if idx < len(posiciones) - 1:
+            _conector_horizontal(slide, estilo, x + Inches(1.85), pos_y + Inches(0.66), Inches(0.4))
+
+    _nodo_diagrama(slide, "Transporte", transporte, estilo, Inches(3.6), Inches(5.25), Inches(5.9), Inches(0.85), resaltar=False)
+    _conector_vertical(slide, estilo, Inches(6.45), Inches(4.35), Inches(0.9))
+
+
+def _crear_diagrama_flujo(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    _pintar_fondo(slide, estilo.fondo)
+    _encabezado(slide, d, estilo)
+    if d.objetivo:
+        _texto(slide, d.objetivo, Inches(0.75), Inches(1.35), Inches(11.8), Inches(0.45), 13, estilo.texto, estilo.fuente_texto)
+    items = [item for item in (d.contenido or [d.objetivo]) if item][:6]
+    posiciones = [(0.75, 2.05), (4.9, 2.05), (9.05, 2.05), (9.05, 4.55), (4.9, 4.55), (0.75, 4.55)]
+    for idx, item in enumerate(items):
+        x, y = posiciones[idx]
+        titulo, texto = _separar_etiqueta(item)
+        titulo = titulo if titulo != "item" else f"Paso {idx + 1}"
+        _nodo_diagrama(slide, titulo, texto, estilo, Inches(x), Inches(y), Inches(3.35), Inches(1.25), resaltar=idx == 0)
+        if idx < len(items) - 1:
+            x2, y2 = posiciones[idx + 1]
+            if y == y2:
+                inicio_x = Inches(x + 3.35) if x2 > x else Inches(x2 + 3.35)
+                _conector_horizontal(slide, estilo, inicio_x, Inches(y + 0.61), Inches(0.8))
+            else:
+                _conector_vertical(slide, estilo, Inches(x + 1.65), Inches(y + 1.25), Inches(1.25))
+
+
+def _crear_diagrama_bloques(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion, tipo_diagrama: str) -> None:
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    _pintar_fondo(slide, estilo.fondo)
+    _encabezado(slide, d, estilo)
+    if d.objetivo:
+        _texto(slide, d.objetivo, Inches(0.75), Inches(1.35), Inches(11.8), Inches(0.45), 13, estilo.texto, estilo.fuente_texto)
+    items = [item for item in (d.contenido or [d.objetivo]) if item][:6]
+    if "caso" in tipo_diagrama or "use" in tipo_diagrama:
+        centro_x, centro_y = Inches(5.0), Inches(2.65)
+        _nodo_diagrama(slide, "Sistema", d.titulo, estilo, centro_x, centro_y, Inches(3.35), Inches(1.35), resaltar=True)
+        posiciones = [(0.85, 2.0), (0.85, 4.15), (9.25, 2.0), (9.25, 4.15), (5.0, 5.35)]
+        for idx, item in enumerate(items[:5]):
+            x, y = posiciones[idx]
+            titulo, texto = _separar_etiqueta(item)
+            _nodo_diagrama(slide, titulo, texto, estilo, Inches(x), Inches(y), Inches(3.05), Inches(1.15), resaltar=False)
+    else:
+        for idx, item in enumerate(items):
+            col = idx % 3
+            fila = idx // 3
+            x = Inches(0.75 + col * 4.15)
+            y = Inches(2.1 + fila * 2.15)
+            titulo, texto = _separar_etiqueta(item)
+            _nodo_diagrama(slide, titulo, texto, estilo, x, y, Inches(3.45), Inches(1.35), resaltar=idx == 0)
+
+
+def _crear_diagrama_arquitectura(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    _pintar_fondo(slide, estilo.fondo)
+    _encabezado(slide, d, estilo)
+    items = [item for item in (d.contenido or [d.objetivo]) if item][:7]
+    capas = _repartir_en_grupos(items, 3)
+    nombres = ["Capa superior", "Capa intermedia", "Capa base"]
+    for idx, grupo in enumerate(capas):
+        y = Inches(1.75 + idx * 1.65)
+        banda = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), y, Inches(11.75), Inches(1.2))
+        banda.fill.solid()
+        banda.fill.fore_color.rgb = estilo.caja
+        banda.line.color.rgb = estilo.acento
+        _texto(slide, nombres[idx], Inches(1.05), y + Inches(0.12), Inches(2.2), Inches(0.35), 12, estilo.acento, estilo.fuente_texto, negrita=True)
+        _texto_ajustado(slide, " | ".join(grupo), Inches(3.05), y + Inches(0.2), Inches(9.1), Inches(0.75), estilo.texto, estilo.fuente_texto, base=12)
+
+
+def _nodo_diagrama(slide, titulo: str, texto: str, estilo: EstiloPresentacion, x, y, w, h, resaltar: bool = False) -> None:
+    caja = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, y, w, h)
+    caja.fill.solid()
+    caja.fill.fore_color.rgb = estilo.acento if resaltar else estilo.caja
+    caja.line.color.rgb = estilo.acento
+    color_titulo = RGBColor(255, 255, 255) if resaltar else estilo.acento
+    color_texto = RGBColor(255, 255, 255) if resaltar else estilo.texto
+    _texto_ajustado(slide, titulo.title(), x + Inches(0.14), y + Inches(0.12), w - Inches(0.28), Inches(0.3), color_titulo, estilo.fuente_texto, base=11, negrita=True)
+    _texto_ajustado(slide, texto, x + Inches(0.14), y + Inches(0.48), w - Inches(0.28), h - Inches(0.58), color_texto, estilo.fuente_texto, base=10)
+
+
+def _conector_horizontal(slide, estilo: EstiloPresentacion, x, y, w) -> None:
+    _linea_acento(slide, estilo, x, y, w)
+
+
+def _conector_vertical(slide, estilo: EstiloPresentacion, x, y, h) -> None:
+    linea = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, x, y, Inches(0.05), h)
+    linea.fill.solid()
+    linea.fill.fore_color.rgb = estilo.acento
+    linea.line.fill.background()
+
+
+def _separar_etiqueta(item: str) -> tuple[str, str]:
+    if ":" not in item:
+        return "item", item
+    etiqueta, texto = item.split(":", 1)
+    return etiqueta.strip() or "item", texto.strip() or item
+
+
+def _buscar_valor(valores: dict[str, str], claves: list[str], defecto: str) -> str:
+    normalizados = {_normalizar_clave(clave): texto for clave, texto in valores.items()}
+    for clave in claves:
+        clave_normalizada = _normalizar_clave(clave)
+        if clave_normalizada in normalizados:
+            return normalizados[clave_normalizada]
+    for clave, texto in normalizados.items():
+        if any(_normalizar_clave(parte) in clave for parte in claves):
+            return texto
+    return defecto
+
+
+def _normalizar_clave(texto: str) -> str:
+    reemplazos = str.maketrans("\u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00f1\u00d1", "aeiouAEIOUnN")
+    return texto.translate(reemplazos).lower()
 
 
 def _crear_diapositiva_actividad(prs: Presentation, d: Diapositiva, estilo: EstiloPresentacion) -> None:

@@ -11,7 +11,7 @@ Usa este formato para pegar el contenido en la interfaz web. Si un LLM genera el
 - Usa `Tipo: ruta` para procesos, secuencias historicas, fases, evolucion de versiones, pasos de laboratorio o flujo de aprendizaje.
 - Usa `Tipo: frase` para ideas centrales, principios de ingenieria, advertencias importantes o transiciones entre secciones.
 - Usa `Tipo: seccion` para separar bloques grandes de la clase, por ejemplo pasar de USB a almacenamiento interno.
-- Usa `Tipo: diagrama` para mapas conceptuales, componentes de arquitectura, relaciones entre capas, buses, controladores, hosts, dispositivos o protocolos.
+- Usa `Tipo: diagrama` para mapas conceptuales, componentes de arquitectura, relaciones entre capas, buses, controladores, hosts, dispositivos, protocolos, CDNs, flujos, bloques o casos de uso.
 - No incluyas actividades, tareas, laboratorios, preguntas guiadas ni entregables dentro de la presentacion, aunque el programa los sugiera.
 - Usa `Tipo: repositorio` para recursos finales, comandos, enlaces, lecturas, herramientas, documentacion o checklist de estudio.
 - Usa `Tipo: codigo` solo cuando exista codigo real entre triple backtick.
@@ -39,8 +39,8 @@ Usa este formato para pegar el contenido en la interfaz web. Si un LLM genera el
 - Ninguna diapositiva queda vacia por accidente.
 - Cada `Tipo: seccion` va seguido por una diapositiva que desarrolla ese bloque.
 - Hay al menos una comparativa tecnica con `Tipo: columnas`.
-- Hay al menos una secuencia, flujo o evolucion con `Tipo: ruta`.
-- Hay al menos un mapa conceptual o arquitectura con `Tipo: diagrama`.
+- Hay al menos una secuencia, flujo o evolucion con `Tipo: ruta` o `Tipo: diagrama` con `Diagrama: flujo`.
+- Hay al menos un mapa conceptual, arquitectura o diagrama especializado con `Tipo: diagrama`.
 - No hay actividades, tareas, laboratorios, preguntas guiadas ni entregables en las diapositivas.
 - Existen diapositivas finales de `Que aprendiste` y `Que queda pendiente`.
 - Las fechas de parciales relevantes aparecen en una diapositiva independiente.
@@ -123,6 +123,7 @@ Imagen: programming code
 - `Imagen:` puede ser una ruta local como `assets/diagrama_usb.png` o una busqueda en ingles para mejorar resultados en Pexels/Pixabay.
 - `Tipo: codigo` activa una diapositiva con bloque de codigo.
 - `Tipo:` tambien puede ser `columnas`, `ruta`, `frase`, `seccion`, `diagrama` o `repositorio`.
+- `Diagrama:` se usa solo con `Tipo: diagrama` para elegir el layout visual del diagrama.
 - Si Pexels falla o no hay API key, el sistema genera la diapositiva con diseno alternativo.
 
 ## Estilos disponibles
@@ -236,24 +237,84 @@ Imagen: sata data cable motherboard close up
 
 ### `Tipo: diagrama`
 
-Uso recomendado: arquitectura, relaciones entre componentes, mapa conceptual, topologia o estructura de protocolo.
+Uso recomendado: arquitectura, relaciones entre componentes, mapa conceptual, topologia, estructura de protocolo, diagrama CDN, flujo, bloques, casos de uso o secuencias tecnicas.
 
 Reglas:
 
-- Escribe de 4 a 6 bullets.
-- Cada bullet debe ser un nodo del diagrama.
-- El titulo funciona como nodo central.
+- Usa `Diagrama:` para indicar el tipo visual esperado.
+- Valores soportados para `Diagrama:`: `cdn`, `flujo`, `bloques`, `casos de uso`, `secuencia`, `arquitectura`, `topologia`, `mapa conceptual` o `protocolo`.
+- Escribe de 4 a 7 bullets.
+- Cada bullet debe representar un nodo, actor, bloque, paso o relacion visible en el diagrama.
+- Si el diagrama necesita orden, escribe los bullets en el orden en que deben conectarse.
+- Si el diagrama compara componentes, incluye prefijos claros como `Usuario:`, `Borde:`, `Origen:` o `ISP:`.
+- El titulo funciona como nodo central cuando `Diagrama:` sea `mapa conceptual` o `arquitectura`.
+- No uses `Tipo: diagrama` para texto largo; si una explicacion necesita mas de 7 bullets, divide en varias diapositivas.
 
 ```markdown
 ## Diapositiva: Mapa conceptual
 
 Tipo: diagrama
 
+Diagrama: mapa conceptual
+
 Contenido:
 - Nodo principal 1
 - Nodo principal 2
 - Nodo principal 3
 - Nodo principal 4
+```
+
+```markdown
+## Diapositiva: Arquitectura de una CDN
+
+Tipo: diagrama
+
+Diagrama: cdn
+
+Objetivo: Mostrar como el contenido viaja desde el origen hacia el usuario usando nodos de borde.
+
+Contenido:
+- Usuario: solicita video, archivo o pagina desde una red de acceso.
+- DNS o enrutamiento: selecciona el punto de presencia mas conveniente.
+- Nodo de borde: entrega contenido cercano al usuario.
+- Cache: conserva copias validas para evitar consultar siempre al origen.
+- Servidor de origen: mantiene la fuente principal del contenido.
+- ISP y backbone: transportan el trafico entre usuario, borde y origen.
+
+Imagen: CDN user edge cache origin server flow diagram
+```
+
+```markdown
+## Diapositiva: Flujo de autenticacion
+
+Tipo: diagrama
+
+Diagrama: flujo
+
+Objetivo: Representar una decision o proceso paso a paso.
+
+Contenido:
+- Usuario envia credenciales.
+- Sistema valida formato y campos requeridos.
+- Servicio consulta identidad y permisos.
+- Decision: acceso concedido o rechazado.
+- Registro de auditoria guarda el resultado.
+```
+
+```markdown
+## Diapositiva: Casos de uso del sistema
+
+Tipo: diagrama
+
+Diagrama: casos de uso
+
+Objetivo: Mostrar actores y acciones principales del sistema.
+
+Contenido:
+- Actor estudiante: consulta material y revisa retroalimentacion.
+- Actor docente: publica contenido y revisa avances.
+- Actor administrador: configura cursos, usuarios y permisos.
+- Sistema: registra actividad, fechas y resultados.
 ```
 
 ## Ejemplo recomendado para PATA/SATA
@@ -280,26 +341,7 @@ Imagen: sata data cable and ide ribbon cable comparison
 
 ### `Tipo: actividad`
 
-Uso recomendado: practica, pregunta aplicada, resolucion de caso, mini laboratorio o discusion dirigida.
-
-Reglas:
-
-- Usa `Objetivo:` para describir la tarea que hara el estudiante.
-- Escribe de 3 a 9 bullets.
-- Los bullets se distribuyen en instrucciones, evidencia y cierre.
-
-```markdown
-## Diapositiva: Laboratorio en clase
-
-Tipo: actividad
-
-Objetivo: Aplicar el concepto en equipos.
-
-Contenido:
-- Formar grupos de trabajo.
-- Resolver el caso propuesto.
-- Presentar una evidencia.
-```
+No usar en presentaciones de clase generadas por LLM. El motor conserva soporte interno por compatibilidad con archivos antiguos, pero este formato prohibe actividades, tareas, laboratorios, preguntas guiadas y entregables dentro de la presentacion.
 
 ### `Tipo: repositorio`
 

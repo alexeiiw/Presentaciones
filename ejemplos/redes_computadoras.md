@@ -11,12 +11,14 @@ Agenda:
 - Bienvenida y contexto de la semana
 - Revision de conceptos previos
 - Desarrollo del tema central
+- Diagrama de arquitectura de red
 - Ejemplo tecnico aplicado
 - Cierre y aprendizajes
 
 Contenido Presentacion:
 - Objetivo de la clase
 - Componentes principales
+- Arquitectura de red
 - Ejemplo en Python
 - Sintesis final
 
@@ -50,6 +52,24 @@ Contenido:
 - Protocolos: reglas que permiten la comunicacion entre dispositivos.
 
 Imagen: network hardware router switch
+
+## Diapositiva: Arquitectura de red basica
+
+Tipo: diagrama
+
+Diagrama: bloques
+
+Objetivo: Representar los bloques principales de una red local conectada a Internet.
+
+Contenido:
+- Usuario: utiliza una computadora, telefono o sensor conectado a la red.
+- Switch: concentra dispositivos dentro de la red local.
+- Router: dirige trafico entre la red local e Internet.
+- Firewall: aplica reglas de seguridad y filtrado.
+- Servidor: entrega servicios internos o externos.
+- Internet: conecta la red local con otros sistemas.
+
+Imagen: local area network block diagram router switch firewall
 
 ## Diapositiva: Ejemplo en Python
 

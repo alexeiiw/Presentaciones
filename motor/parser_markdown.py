@@ -8,6 +8,7 @@ class Diapositiva:
     contenido: list[str] = field(default_factory=list)
     imagen: str = ""
     tipo: str = "contenido"
+    diagrama: str = ""
     codigo: str = ""
     lenguaje: str = ""
 
@@ -106,6 +107,9 @@ def parsear_markdown(texto: str) -> Clase:
 
         if linea.startswith("Tipo:"):
             actual.tipo = linea.split(":", 1)[1].strip().lower()
+            continue
+        if linea.startswith("Diagrama:"):
+            actual.diagrama = linea.split(":", 1)[1].strip().lower()
             continue
         if linea.startswith("Objetivo:"):
             actual.objetivo = linea.split(":", 1)[1].strip()

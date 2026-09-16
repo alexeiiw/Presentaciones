@@ -2,7 +2,7 @@
 
 Generador de presentaciones academicas de alto impacto usando Python, Streamlit, python-pptx, biblioteca local de imagenes, Pexels y Pixabay.
 
-Version actual: `v0.8`
+Version actual: `v0.9`
 
 ## Estructura del proyecto
 
@@ -179,8 +179,13 @@ Desde la pestaña `Curador de imagenes` puedes marcar cada imagen como `favorita
 - `ruta`: muestra una secuencia de pasos.
 - `frase`: resalta una idea central a gran escala.
 - `seccion`: crea un separador visual para bloques grandes de la clase.
-- `diagrama`: organiza bullets como mapa conceptual simple.
-- `actividad`: estructura instrucciones, evidencia y cierre.
+- `diagrama`: organiza bullets como mapa conceptual o como diagrama especializado usando `Diagrama:`.
+- `diagrama` con `Diagrama: cdn`: dibuja una arquitectura de CDN con usuario, DNS/enrutamiento, borde, cache, origen e ISP/backbone.
+- `diagrama` con `Diagrama: flujo`: dibuja un proceso paso a paso.
+- `diagrama` con `Diagrama: bloques`: dibuja bloques funcionales.
+- `diagrama` con `Diagrama: casos de uso`: dibuja actores alrededor del sistema.
+- `diagrama` con `Diagrama: arquitectura`, `topologia` o `protocolo`: dibuja capas o componentes relacionados.
+- `actividad`: soporte heredado; no se recomienda para contenido generado por LLM porque el formato actual prohibe actividades, tareas y entregables dentro de la presentacion.
 - `repositorio`: presenta recursos o enlaces como tarjetas.
 
 ## Formato de entrada
@@ -192,6 +197,14 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 Antes de generar, valida el checklist de calidad del formato para evitar diapositivas vacias, temas inconclusos o layouts repetitivos.
 
 ## Historial de Cambios
+
+### v0.9
+
+- Se agrego soporte para el campo `Diagrama:` en diapositivas `Tipo: diagrama`.
+- Se agregaron layouts especificos para diagramas `cdn`, `flujo`, `bloques`, `casos de uso`, `secuencia`, `arquitectura`, `topologia`, `mapa conceptual` y `protocolo`.
+- El parser Markdown ahora conserva el tipo de diagrama solicitado.
+- `FORMATO_CLASE.md` documenta ejemplos de CDN, flujo y casos de uso.
+- La estructura del proyecto se mantiene: puntos de entrada y documentacion en raiz; logica interna en `motor/`.
 
 ### v0.8
 
