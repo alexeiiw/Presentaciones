@@ -27,6 +27,12 @@ Aprendizajes:
 - Diferenciar dispositivos finales e intermediarios.
 - Relacionar conceptos de red con ejemplos tecnicos.
 
+Fechas Parciales:
+- Parcial 1: agrega aquí la fecha confirmada
+
+Qué queda pendiente:
+- Profundizar en protocolos de enrutamiento en la siguiente clase
+
 Frase Final: La infraestructura digital se entiende mejor cuando observas como viajan los datos.
 
 ## Diapositiva: Objetivo de la clase

@@ -2,7 +2,7 @@
 
 Generador de presentaciones academicas de alto impacto usando Python, Streamlit, python-pptx, biblioteca local de imagenes, Pexels y Pixabay.
 
-Version actual: `v0.9`
+Version actual: `v0.10`
 
 ## Estructura del proyecto
 
@@ -13,6 +13,7 @@ Presentaciones/
 ├── generar_desde_md.py        # Entrada para generar desde terminal
 ├── motor/                     # Modulos internos del generador
 ├── ejemplos/                  # Markdown de referencia
+├── tests/                     # Pruebas del parser, motor e interfaz
 ├── assets/                    # Assets locales
 ├── biblioteca_imagenes/       # Biblioteca e indice local ignorado
 ├── salidas/                   # PPTX y PDF generados, ignorados por Git
@@ -88,7 +89,10 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 ## Uso
 
 - Pega el Markdown de la clase.
-- Define `Agenda:`, `Contenido Presentacion:`, `Aprendizajes:` y `Frase Final:` si quieres usar la estructura academica completa.
+- Revisa la validación previa, el resumen de diapositivas e imágenes y la vista de estructura antes de generar.
+- Corrige los errores bloqueantes. Las recomendaciones de contenido, agenda e imágenes no bloquean la generación.
+- Define `Agenda:`, `Contenido Presentacion:`, `Aprendizajes:` y `Frase Final:` para usar la estructura academica completa.
+- `Fechas Parciales:` y `Qué queda pendiente:` crean diapositivas dedicadas cuando incluyen elementos. Si faltan, la validación lo informa como recomendación.
 - Selecciona estilo visual.
 - Selecciona modo de imagen.
 - Selecciona distribucion de diapositivas.
@@ -96,6 +100,17 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 - Si necesitas PDF, usa la opcion `Generar PDF desde este PPTX` despues de crear la presentacion.
 - Los archivos quedan guardados dentro de `salidas/`.
 - Los `.pptx` y `.pdf` generados en `salidas/` estan excluidos de Git por defecto.
+- Cambiar el Markdown, nombre de archivo o configuración invalida la descarga anterior hasta regenerar, evitando descargar por error una versión desactualizada.
+
+## Pruebas
+
+Con las dependencias instaladas desde `requirements.txt`, ejecuta:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+La suite revisa la validación del ejemplo, parser, layouts y estilos, reemplazo de PPTX, biblioteca/proveedores de imágenes, rutas locales e integración de generación con Streamlit.
 
 ## Imagenes Locales
 
@@ -196,7 +211,19 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 
 Antes de generar, valida el checklist de calidad del formato para evitar diapositivas vacias, temas inconclusos o layouts repetitivos.
 
+La interfaz muestra ahora esta revisión automáticamente y permite generar con recomendaciones, bloqueando solo errores que impedirían una salida útil. El PPTX se reemplaza al generar con el mismo nombre para facilitar iteraciones.
+
 ## Historial de Cambios
+
+### v0.10
+
+- Se añadió revisión automática de la clase antes de generar, con errores bloqueantes, recomendaciones, conteo y vista previa estructural.
+- Se alinearon el formato, el parser y el generador para admitir `Fechas Parciales:` y `Qué queda pendiente:` como diapositivas dedicadas cuando tienen elementos.
+- Se aclaró el cierre de aprendizajes y se amplió el formato de clase para que los campos opcionales no frenen la preparación.
+- La interfaz advierte cuando el Markdown o la configuración cambian después de generar y evita ofrecer una descarga desactualizada.
+- Se mejoró la presentación de controles, opciones e información de revisión en la interfaz.
+- Se corrigió la selección de imágenes para no repetir resultados agotados de Pexels/Pixabay y se estabilizaron rutas de biblioteca, imágenes locales y temporales.
+- Se añadieron pruebas automatizadas de operación para parser, layouts, estilos, imágenes, rutas, generación e interfaz.
 
 ### v0.9
 

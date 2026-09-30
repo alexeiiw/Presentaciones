@@ -18,6 +18,19 @@ ANCHO = Inches(13.333)
 ALTO = Inches(7.5)
 
 
+def contar_diapositivas_estimadas(clase: Clase) -> int:
+    contenido = clase.contenido_presentacion or [diapositiva.titulo for diapositiva in clase.diapositivas]
+    return (
+        1
+        + (len(clase.agenda) + 6) // 7
+        + (len(contenido) + 9) // 10
+        + len(clase.diapositivas)
+        + (len(clase.fechas_parciales) + 6) // 7
+        + int(bool(clase.aprendizajes or clase.frase_final or clase.diapositivas))
+        + (len(clase.pendientes) + 6) // 7
+    )
+
+
 def generar_presentacion(
     clase: Clase,
     salida: Path,
@@ -31,8 +44,8 @@ def generar_presentacion(
     estilo = obtener_estilo(estilo_nombre or clase.estilo)
     imagenes_usadas: set[str] = set()
 
-    imagen_portada = _resolver_imagen(clase.imagen_universidad, modo_imagen, imagenes_usadas)
-    logo_portada = _resolver_imagen(clase.logo_portada, modo_imagen, imagenes_usadas)
+    imagen_portada = _resolver_imagen(clase.imagen_universidad, modo_imagen, imagenes_usadas, ruta_base=salida.parent)
+    logo_portada = _resolver_imagen(clase.logo_portada, modo_imagen, imagenes_usadas, ruta_base=salida.parent)
     _crear_portada(prs, clase, estilo, imagen_portada, logo_portada)
     if clase.agenda:
         _crear_diapositivas_lista(prs, "Agenda de la clase", clase.agenda, estilo, "Lo que veremos hoy", max_por_slide=7)
@@ -42,7 +55,7 @@ def generar_presentacion(
         _crear_diapositivas_lista(prs, "Contenido de la presentacion", contenido, estilo, "Estructura del material", max_por_slide=10)
 
     for indice, diapositiva in enumerate(clase.diapositivas):
-        imagen = _resolver_imagen(diapositiva.imagen, modo_imagen, imagenes_usadas)
+        imagen = _resolver_imagen(diapositiva.imagen, modo_imagen, imagenes_usadas, ruta_base=salida.parent)
         layout = _layout_para_diapositiva(indice, distribucion)
 
         if diapositiva.tipo == "codigo" or diapositiva.codigo:
@@ -54,9 +67,14 @@ def generar_presentacion(
         else:
             _crear_diapositiva_contenido(prs, diapositiva, estilo, imagen, modo_imagen, layout)
 
+    if clase.fechas_parciales:
+        _crear_diapositivas_lista(prs, "Fechas de parciales", clase.fechas_parciales, estilo, "Fechas relevantes del curso", max_por_slide=7)
+
     aprendizajes = clase.aprendizajes or _aprendizajes_desde_diapositivas(clase.diapositivas)
     if aprendizajes or clase.frase_final:
         _crear_diapositiva_cierre(prs, aprendizajes, clase.frase_final, estilo)
+    if clase.pendientes:
+        _crear_diapositivas_lista(prs, "Qué queda pendiente", clase.pendientes, estilo, "Temas por abordar o reforzar", max_por_slide=7)
 
     salida.parent.mkdir(parents=True, exist_ok=True)
     prs.save(salida)
@@ -120,7 +138,7 @@ def _crear_diapositiva_cierre(prs: Presentation, aprendizajes: list[str], frase:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     _pintar_fondo(slide, estilo.fondo)
     _agregar_banda_visual(slide, estilo)
-    _texto(slide, "Esto fue lo que aprendiste", Inches(0.75), Inches(0.65), Inches(8.0), Inches(0.8), 34, estilo.titulo, estilo.fuente_titulo, negrita=True)
+    _texto(slide, "Qué aprendiste", Inches(0.75), Inches(0.65), Inches(8.0), Inches(0.8), 34, estilo.titulo, estilo.fuente_titulo, negrita=True)
     _linea_acento(slide, estilo, Inches(0.75), Inches(1.55), Inches(2.0))
     _bullets(slide, aprendizajes[:5], Inches(1.0), Inches(1.95), Inches(7.5), Inches(3.25), estilo)
 
@@ -146,14 +164,21 @@ def _aprendizajes_desde_diapositivas(diapositivas: list[Diapositiva]) -> list[st
     return [f"Comprender {d.titulo.lower()}" for d in diapositivas[:5]]
 
 
-def _resolver_imagen(keyword: str, modo_imagen: str, imagenes_usadas: set[str]) -> Path | None:
+def _resolver_imagen(
+    keyword: str,
+    modo_imagen: str,
+    imagenes_usadas: set[str],
+    ruta_base: Path | None = None,
+) -> Path | None:
     if not keyword:
         return None
 
-    local_directa = _resolver_ruta_local(keyword)
+    local_directa = _resolver_ruta_local(keyword, ruta_base)
     if local_directa:
         imagenes_usadas.add(str(local_directa))
         return local_directa
+    if Path(keyword.strip().strip('"')).suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".bmp"}:
+        return None
 
     if modo_imagen in {"solo_diseno", "sin_imagen"}:
         return None
@@ -168,7 +193,8 @@ def _resolver_imagen(keyword: str, modo_imagen: str, imagenes_usadas: set[str]) 
     if not proveedores:
         return None
 
-    resultado = obtener_imagen(keyword, Path("temp") / "imagenes", proveedores, imagenes_usadas)
+    raiz_proyecto = Path(__file__).resolve().parents[1]
+    resultado = obtener_imagen(keyword, raiz_proyecto / "temp" / "imagenes", proveedores, imagenes_usadas)
     if not resultado:
         return None
 
@@ -178,16 +204,18 @@ def _resolver_imagen(keyword: str, modo_imagen: str, imagenes_usadas: set[str]) 
     return guardada
 
 
-def _resolver_ruta_local(valor: str) -> Path | None:
+def _resolver_ruta_local(valor: str, ruta_base: Path | None = None) -> Path | None:
     ruta = Path(valor.strip().strip('"'))
     extensiones = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
     if ruta.suffix.lower() not in extensiones:
         return None
-    if ruta.exists() and ruta.is_file():
-        return ruta
-    ruta_assets = Path("assets") / ruta.name
-    if ruta_assets.exists() and ruta_assets.is_file():
-        return ruta_assets
+    raiz_proyecto = Path(__file__).resolve().parents[1]
+    base = Path(ruta_base).resolve() if ruta_base else Path.cwd()
+    candidatas = [ruta] if ruta.is_absolute() else [base / ruta, base / "assets" / ruta.name, Path.cwd() / ruta, raiz_proyecto / ruta]
+    candidatas.extend([Path.cwd() / "assets" / ruta.name, raiz_proyecto / "assets" / ruta.name])
+    for candidata in candidatas:
+        if candidata.exists() and candidata.is_file():
+            return candidata.resolve()
     return None
 
 

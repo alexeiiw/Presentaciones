@@ -27,12 +27,14 @@ Usa este formato para pegar el contenido en la interfaz web. Si un LLM genera el
 - Incluye al menos dos diapositivas visuales avanzadas entre `columnas`, `ruta` o `diagrama` por cada 10 diapositivas de contenido.
 - Para clases tecnicas, incluye al menos una comparativa `Tipo: columnas`, una secuencia `Tipo: ruta` y un mapa `Tipo: diagrama`.
 - Usa formulas en texto simple cuando sean necesarias, pero mantenlas cortas y explicadas.
-- Toda presentacion debe incluir una diapositiva de fechas de parciales relevantes.
-- Toda presentacion debe terminar con una diapositiva `Que aprendiste` y otra `Que queda pendiente`.
+- Incluye las fechas de parciales cuando estén confirmadas y sean relevantes para esta clase; la revisión previa recordará si faltan.
+- Cierra con `Qué aprendiste` y agrega `Qué queda pendiente` cuando haya temas que continuar en el curso.
 - No incluyas una seccion `Como continua el modulo`.
 - Conserva la letra `ñ`, las vocales acentuadas y los demas caracteres propios del español.
 
 ## Checklist de calidad antes de generar
+
+La interfaz ejecuta este checklist automáticamente. Los errores que impiden generar se muestran como bloqueantes; las recomendaciones se pueden revisar y el docente puede continuar.
 
 - La presentacion desarrolla todos los bloques declarados en `Contenido Presentacion:`.
 - La agenda no promete temas que luego quedan sin diapositivas.
@@ -42,8 +44,8 @@ Usa este formato para pegar el contenido en la interfaz web. Si un LLM genera el
 - Hay al menos una secuencia, flujo o evolucion con `Tipo: ruta` o `Tipo: diagrama` con `Diagrama: flujo`.
 - Hay al menos un mapa conceptual, arquitectura o diagrama especializado con `Tipo: diagrama`.
 - No hay actividades, tareas, laboratorios, preguntas guiadas ni entregables en las diapositivas.
-- Existen diapositivas finales de `Que aprendiste` y `Que queda pendiente`.
-- Las fechas de parciales relevantes aparecen en una diapositiva independiente.
+- Existe una síntesis de aprendizajes; los pendientes se incluyen cuando aplican.
+- Las fechas confirmadas de parciales aparecen en una diapositiva independiente.
 - Hay una diapositiva final de recursos con `Tipo: repositorio` cuando la clase requiere seguimiento.
 - Las imagenes usan keywords tecnicas especificas en ingles.
 - Los bullets explican ideas completas y no son etiquetas sueltas.
@@ -77,6 +79,12 @@ Aprendizajes:
 - Primer aprendizaje esperado.
 - Segundo aprendizaje esperado.
 - Tercer aprendizaje esperado.
+
+Fechas Parciales:
+- Parcial 1: fecha, hora y alcance confirmado. Incluye el segundo parcial si corresponde.
+
+Qué queda pendiente:
+- Tema que se retomará en la siguiente clase. Omite este bloque si no aplica.
 
 Frase Final: Una frase motivacional breve para cerrar la clase.
 
@@ -115,6 +123,10 @@ Imagen: programming code
 - `Contenido Presentacion:` crea una diapositiva automatica con la estructura del material.
 - Cada item de `Contenido Presentacion:` debe estar desarrollado por al menos una diapositiva posterior.
 - `Aprendizajes:` alimenta la diapositiva final de cierre.
+- `Fechas Parciales:` acepta una lista de fechas y crea una diapositiva independiente cuando contiene elementos. Si no hay fechas confirmadas o no aplican, omite el campo; la revisión previa lo señalará como recomendación.
+- `Qué queda pendiente:` acepta temas que se retomarán. Se convierte en una diapositiva al final, después del resumen de aprendizajes; se puede omitir cuando no aplique.
+- `Aprendizajes:` crea el cierre conceptual `Qué aprendiste`. Si falta, el motor usa títulos de diapositivas como síntesis automática y la revisión previa lo indica.
+- Las fechas y los pendientes son opcionales para clases que no los necesiten. La revisión previa los recuerda como recomendaciones y permite continuar.
 - `Frase Final:` agrega una frase motivacional al cierre.
 - `Estilo:` puede usar cualquiera de los estilos listados abajo.
 - Cada diapositiva empieza con `## Diapositiva:`.
@@ -125,6 +137,9 @@ Imagen: programming code
 - `Tipo:` tambien puede ser `columnas`, `ruta`, `frase`, `seccion`, `diagrama` o `repositorio`.
 - `Diagrama:` se usa solo con `Tipo: diagrama` para elegir el layout visual del diagrama.
 - Si Pexels falla o no hay API key, el sistema genera la diapositiva con diseno alternativo.
+- La interfaz realiza una revisión previa: bloquea únicamente errores que impiden generar y presenta inconsistencias académicas o de contenido como recomendaciones revisables.
+- La descarga corresponde a la última generación solo si siguen coincidiendo el Markdown y la configuración (nombre, estilo, modo de imagen y distribución). Si algo cambia, genera otra vez antes de descargar.
+- El mismo nombre de salida reemplaza el PPTX anterior intencionalmente para permitir iterar y regenerar una clase.
 
 ## Estilos disponibles
 

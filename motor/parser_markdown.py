@@ -25,6 +25,8 @@ class Clase:
     agenda: list[str] = field(default_factory=list)
     contenido_presentacion: list[str] = field(default_factory=list)
     aprendizajes: list[str] = field(default_factory=list)
+    fechas_parciales: list[str] = field(default_factory=list)
+    pendientes: list[str] = field(default_factory=list)
     frase_final: str = ""
     diapositivas: list[Diapositiva] = field(default_factory=list)
 
@@ -57,6 +59,8 @@ def parsear_markdown(texto: str) -> Clase:
         if linea.startswith("# Clase:"):
             clase.titulo = linea.split(":", 1)[1].strip()
             continue
+        if linea.startswith("# ") and not linea.startswith("## "):
+            continue
         if linea.startswith("Profesor:"):
             clase.profesor = linea.split(":", 1)[1].strip()
             continue
@@ -88,6 +92,14 @@ def parsear_markdown(texto: str) -> Clase:
             continue
         if linea.startswith("Aprendizajes:"):
             seccion_global = "aprendizajes"
+            actual = None
+            continue
+        if linea.startswith(("Fechas Parciales:", "Fechas de Parciales:")):
+            seccion_global = "fechas_parciales"
+            actual = None
+            continue
+        if linea.startswith(("Que queda pendiente:", "Qué queda pendiente:", "Pendientes:")):
+            seccion_global = "pendientes"
             actual = None
             continue
 
@@ -129,5 +141,9 @@ def parsear_markdown(texto: str) -> Clase:
             continue
         if leyendo_contenido and linea.startswith("-"):
             actual.contenido.append(linea[1:].strip())
+
+    if leyendo_codigo and actual:
+        actual.codigo = "\n".join(codigo_lineas).strip()
+        actual.tipo = "codigo"
 
     return clase

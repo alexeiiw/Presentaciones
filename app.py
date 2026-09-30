@@ -1,5 +1,7 @@
 from pathlib import Path
+import json
 import os
+import re
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -7,8 +9,13 @@ from dotenv import load_dotenv
 from motor.biblioteca_imagenes import actualizar_estado, leer_index
 from motor.estilos import nombres_estilos
 from motor.exportadores import convertir_pptx_a_pdf
-from motor.generador_clases import generar_presentacion
+from motor.generador_clases import contar_diapositivas_estimadas, generar_presentacion
 from motor.parser_markdown import parsear_markdown
+from motor.validaciones import validar_clase
+
+
+ROOT = Path(__file__).resolve().parent
+SALIDAS = ROOT / "salidas"
 
 
 load_dotenv()
@@ -23,18 +30,28 @@ Imagen Portada: images.jpg
 Logo Portada: Umg.png
 
 Agenda:
-- Bienvenida y contexto de la semana
-- Revisión de conceptos previos
-- Desarrollo del tema central
-- Demostración técnica guiada
-- Actividad practica de cierre
+- Fundamentos de redes de computadoras
+- Componentes principales
+- Arquitectura de red básica
+- Ejemplo en Python
+- Ruta de aprendizaje
+- Fechas de parciales y síntesis final
 
 Contenido Presentacion:
 - Objetivo de la clase
 - Fundamentos de redes de computadoras
 - Componentes principales
-- Ejemplo técnico aplicado
-- Cierre y aprendizajes
+- Arquitectura de red básica
+- Ejemplo en Python
+- Ruta de aprendizaje
+- Fechas de parciales
+- Aprendizajes y qué queda pendiente
+
+Fechas Parciales:
+- Parcial 1: agrega aquí la fecha confirmada
+
+Qué queda pendiente:
+- Profundizar en protocolos de enrutamiento en la próxima clase
 
 Aprendizajes:
 - Diferenciar componentes físicos y lógicos de una red.
@@ -68,6 +85,19 @@ def latencia_promedio(mediciones_ms):
 
 Imagen: programming code network
 
+## Diapositiva: Arquitectura de red básica
+
+Tipo: diagrama
+
+Diagrama: bloques
+
+Contenido:
+- Usuario: inicia solicitudes desde un dispositivo final.
+- Switch: conecta dispositivos dentro de la red local.
+- Router: dirige tráfico entre redes.
+- Firewall: aplica reglas de seguridad.
+- Servidor: entrega servicios y recursos.
+
 ## Diapositiva: Ruta de aprendizaje
 
 Tipo: ruta
@@ -81,7 +111,7 @@ Contenido:
 """
 
 
-st.set_page_config(page_title="Generador de Presentaciones", page_icon="PPTX", layout="wide")
+st.set_page_config(page_title="Generador de Presentaciones", page_icon="🎓", layout="wide")
 
 st.markdown(
     """
@@ -104,6 +134,11 @@ st.markdown(
         color: #334155;
         margin-bottom: .8rem;
     }
+    .stButton > button { border-radius: 10px; font-weight: 600; min-height: 2.7rem; }
+    div[data-testid="stMetric"] { background: #f8fafc; border: 1px solid #e2e8f0; padding: .8rem; border-radius: 12px; }
+    div[data-testid="stTabs"] button { font-weight: 600; }
+    div[data-testid="stExpander"] { border-radius: 12px; }
+    .block-container { padding-top: 1.6rem; padding-bottom: 2.5rem; }
     </style>
     <div class="main-title">
         <h1>Generador de presentaciones academicas</h1>
@@ -134,27 +169,30 @@ def limpiar_contenido() -> None:
     st.session_state.markdown_clase = ""
     st.session_state.pptx_generado = None
     st.session_state.pdf_generado = None
+    st.session_state.markdown_generado = None
 
 
-def contar_diapositivas_estimadas(clase) -> int:
-    total = 1
-    if clase.agenda:
-        total += (len(clase.agenda) + 6) // 7
-    contenido = clase.contenido_presentacion or [d.titulo for d in clase.diapositivas]
-    if contenido:
-        total += (len(contenido) + 9) // 10
-    total += len(clase.diapositivas)
-    if clase.aprendizajes or clase.frase_final:
-        total += 1
-    return total
+def normalizar_nombre_archivo(nombre: str) -> str:
+    seguro = re.sub(r'[<>:"/\\|?*\x00-\x1f]+', "_", nombre.strip()).strip(" ._")
+    return seguro or "presentacion_clase"
+
+
+def firma_generacion(markdown: str, nombre: str, estilo: str, modo_imagen: str, distribucion: str) -> str:
+    return json.dumps(
+        [markdown, normalizar_nombre_archivo(nombre), estilo, modo_imagen, distribucion],
+        ensure_ascii=False,
+    )
 
 with st.sidebar:
-    st.header("Configuracion de salida")
+    st.header("Ajustes de presentación")
     nombre_archivo = st.text_input("Nombre del archivo", value="presentacion_clase")
+    st.caption("Al repetir este nombre, se reemplaza el PPTX anterior.")
+    st.subheader("Diseño e imágenes")
     estilo = st.selectbox(
         "Estilo visual",
         nombres_estilos(),
         index=1,
+        format_func=lambda nombre: nombre.replace("_", " ").title(),
     )
     modo_imagen = st.selectbox(
         "Modo de imagen",
@@ -170,8 +208,15 @@ with st.sidebar:
             "sin_imagen",
         ],
         index=0,
+        help="Intenta imágenes aprobadas de la biblioteca y luego proveedores externos. También puedes elegir solo diseño o sin imágenes.",
     )
-    distribucion = st.selectbox("Distribucion", ["alternada", "fija", "aleatoria_controlada"], index=0)
+    distribucion = st.selectbox(
+        "Distribución de imágenes",
+        ["alternada", "fija", "aleatoria_controlada"],
+        index=0,
+        format_func=lambda nombre: nombre.replace("_", " ").title(),
+    )
+    st.subheader("Proveedores opcionales")
     pexels_key = st.text_input("PEXELS_API_KEY", value=os.getenv("PEXELS_API_KEY", ""), type="password")
     pixabay_key = st.text_input("PIXABAY_API_KEY", value=os.getenv("PIXABAY_API_KEY", ""), type="password")
     if pexels_key.strip():
@@ -180,14 +225,39 @@ with st.sidebar:
         os.environ["PIXABAY_API_KEY"] = pixabay_key.strip()
     st.info("Las claves se pueden pegar aqui, guardarlas en .env o exportarlas como variables de entorno.")
 
-tab_editor, tab_curador = st.tabs(["Generador", "Curador de imagenes"])
+tab_editor, tab_curador = st.tabs(["✦ Generador", "▧ Curador de imágenes"])
 
 with tab_editor:
     st.subheader("Contenido fuente")
     markdown = st.text_area("Contenido de la clase en Markdown", key="markdown_clase", height=560)
 
+    clase_validada = parsear_markdown(markdown) if markdown.strip() else None
+    validacion = validar_clase(markdown, clase_validada, ROOT) if clase_validada else None
+    if validacion:
+        met1, met2, met3 = st.columns(3)
+        met1.metric("Diapositivas de contenido", validacion.diapositivas_contenido)
+        met2.metric("Total estimado", validacion.diapositivas_estimadas)
+        met3.metric("Imágenes locales", validacion.imagenes_locales)
+        if validacion.errores:
+            with st.container(border=True):
+                st.error("Corrige estos problemas antes de generar")
+                for mensaje in validacion.errores:
+                    st.markdown(f"- {mensaje}")
+        elif validacion.advertencias:
+            with st.expander(f"Revisión previa: {len(validacion.advertencias)} recomendaciones", expanded=True):
+                st.success("La presentación puede generarse. Revisa los avisos para evitar sorpresas en el resultado.")
+                for mensaje in validacion.advertencias:
+                    st.markdown(f"- {mensaje}")
+        else:
+            st.success("Revisión previa correcta: no se encontraron problemas.")
+        if clase_validada.diapositivas:
+            with st.expander("Vista previa de la estructura"):
+                for numero, diapositiva in enumerate(clase_validada.diapositivas, start=1):
+                    detalle = f"{diapositiva.tipo.title()} · {len(diapositiva.contenido)} puntos"
+                    st.markdown(f"**{numero:02d}. {diapositiva.titulo or 'Sin título'}**  \n{detalle}")
+
     col1, col2 = st.columns([1, 1])
-    generar = col1.button("Generar presentacion", type="primary")
+    generar = col1.button("Generar presentación", type="primary", disabled=not validacion or not validacion.valido)
     col2.button("Limpiar contenido", on_click=limpiar_contenido)
 
     if generar:
@@ -195,23 +265,44 @@ with tab_editor:
             st.error("Pega el contenido de la clase antes de generar.")
         else:
             try:
-                clase = parsear_markdown(markdown)
-                salida = Path("salidas") / f"{nombre_archivo.strip() or 'presentacion_clase'}.pptx"
-                ruta = generar_presentacion(
-                    clase,
-                    salida,
-                    estilo_nombre=estilo,
-                    modo_imagen=modo_imagen,
-                    distribucion=distribucion,
-                )
+                clase = clase_validada or parsear_markdown(markdown)
+                nombre_seguro = normalizar_nombre_archivo(nombre_archivo)
+                salida = SALIDAS / f"{nombre_seguro}.pptx"
+                salida.resolve().relative_to(SALIDAS.resolve())
+                with st.spinner("Generando PowerPoint. La búsqueda de imágenes puede tardar unos momentos..."):
+                    ruta = generar_presentacion(
+                        clase,
+                        salida,
+                        estilo_nombre=estilo,
+                        modo_imagen=modo_imagen,
+                        distribucion=distribucion,
+                    )
                 st.session_state.pptx_generado = str(ruta)
                 st.session_state.pdf_generado = None
+                st.session_state.markdown_generado = markdown
+                st.session_state.firma_generacion = firma_generacion(
+                    markdown, nombre_archivo, estilo, modo_imagen, distribucion
+                )
                 st.success(f"Presentacion generada: {ruta}")
-                st.caption(f"Diapositivas generadas: {contar_diapositivas_estimadas(clase)}")
+                st.caption(
+                    f"Diapositivas generadas: {contar_diapositivas_estimadas(clase)}. "
+                    "Si usas el mismo nombre, el archivo anterior se reemplaza."
+                )
             except Exception as exc:
                 st.error(f"No se pudo generar la presentacion: {exc}")
 
-    pptx_generado = Path(st.session_state.pptx_generado) if st.session_state.pptx_generado else None
+    firma_actual = firma_generacion(markdown, nombre_archivo, estilo, modo_imagen, distribucion)
+    resultado_actual = bool(st.session_state.pptx_generado and st.session_state.get("firma_generacion") == firma_actual)
+    pptx_generado = (
+        Path(st.session_state.pptx_generado)
+        if resultado_actual
+        else None
+    )
+    if st.session_state.pptx_generado and not resultado_actual:
+        st.info(
+            "El contenido o la configuración cambió desde la última generación. "
+            "Genera nuevamente para descargar la versión actual."
+        )
     if pptx_generado and pptx_generado.exists():
         st.divider()
         st.subheader("Descargas")
@@ -222,7 +313,7 @@ with tab_editor:
                 file_name=pptx_generado.name,
                 mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
             )
-        st.info("El PDF se genera despues del PPTX. Revisa visualmente el PDF antes de publicarlo porque LibreOffice puede variar levemente la fidelidad.")
+        st.info("El PDF se genera después del PPTX. Revisa visualmente el PDF antes de publicarlo porque LibreOffice puede variar levemente la fidelidad.")
         if st.button("Generar PDF desde este PPTX"):
             resultado_pdf = convertir_pptx_a_pdf(pptx_generado)
             if resultado_pdf.ok and resultado_pdf.ruta:

@@ -39,6 +39,16 @@ python maestro.py
 
 El script maestro ejecuta `app.py` con Streamlit y mantiene la raiz del proyecto como directorio de trabajo.
 
+La pestaña Generador muestra la revisión previa del Markdown, cantidad estimada de diapositivas, imágenes locales encontradas y la estructura por tipo de diapositiva. Los errores que impiden generar se bloquean; las recomendaciones pueden revisarse antes de continuar.
+
+Si cambias el contenido, estilo, imágenes, distribución o nombre después de una generación, la interfaz requiere generar nuevamente antes de ofrecer la descarga para que no descargues una versión anterior por error. Generar con el mismo nombre reemplaza el archivo PPTX previo intencionalmente.
+
+Para revisar parser, layouts, estilos, proveedores y flujo de interfaz desde el entorno del proyecto:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
 ## Diagramas en Markdown
 
 Las diapositivas con `Tipo: diagrama` pueden usar el campo `Diagrama:` para elegir el layout visual.

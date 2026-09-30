@@ -33,7 +33,9 @@ def buscar_imagen_pexels(query: str, destino: Path, usadas: set[str] | None = No
             return None
 
         random.shuffle(fotos)
-        foto = _elegir_no_usada(fotos, usadas)
+        foto = _elegir_no_usada(fotos, usadas, "pexels")
+        if foto is None:
+            return None
         url = foto["src"].get("large2x") or foto["src"].get("large")
         if not url:
             return None
@@ -73,7 +75,9 @@ def buscar_imagen_pixabay(query: str, destino: Path, usadas: set[str] | None = N
             return None
 
         random.shuffle(fotos)
-        foto = _elegir_no_usada(fotos, usadas, campo_id="largeImageURL")
+        foto = _elegir_no_usada(fotos, usadas, "pixabay")
+        if foto is None:
+            return None
         url = foto.get("largeImageURL") or foto.get("webformatURL")
         if not url:
             return None
@@ -112,11 +116,13 @@ def proveedores_desde_modo(modo_imagen: str) -> list[str]:
     return []
 
 
-def _elegir_no_usada(fotos: list[dict], usadas: set[str] | None, campo_id: str = "url") -> dict:
-    usadas = usadas or set()
+def _elegir_no_usada(fotos: list[dict], usadas: set[str] | None, proveedor: str) -> dict | None:
+    if usadas is None:
+        usadas = set()
     for foto in fotos:
-        identificador = str(foto.get(campo_id) or foto.get("id") or "")
-        if identificador and identificador not in usadas:
-            usadas.add(identificador)
+        identificador = str(foto.get("id") or foto.get("url") or foto.get("largeImageURL") or "")
+        clave_usada = f"{proveedor}:{identificador}"
+        if identificador and clave_usada not in usadas:
+            usadas.add(clave_usada)
             return foto
-    return fotos[0]
+    return None
