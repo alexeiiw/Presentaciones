@@ -140,6 +140,7 @@ Imagen: programming code
 - La interfaz realiza una revisión previa: bloquea únicamente errores que impiden generar y presenta inconsistencias académicas o de contenido como recomendaciones revisables.
 - La descarga corresponde a la última generación solo si siguen coincidiendo el Markdown y la configuración (nombre, estilo, modo de imagen y distribución). Si algo cambia, genera otra vez antes de descargar.
 - El mismo nombre de salida reemplaza el PPTX anterior intencionalmente para permitir iterar y regenerar una clase.
+- La pestaña `Convertir PPTX a PDF` lista los PPTX persistidos en `salidas/`; permite convertirlos o regenerar su PDF desde una sesión posterior sin volver a crear la presentación.
 
 ## Estilos disponibles
 

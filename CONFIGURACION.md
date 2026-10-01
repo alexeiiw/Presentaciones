@@ -43,6 +43,8 @@ La pestaña Generador muestra la revisión previa del Markdown, cantidad estimad
 
 Si cambias el contenido, estilo, imágenes, distribución o nombre después de una generación, la interfaz requiere generar nuevamente antes de ofrecer la descarga para que no descargues una versión anterior por error. Generar con el mismo nombre reemplaza el archivo PPTX previo intencionalmente.
 
+Para convertir un PPTX de una sesión anterior, abre la pestaña `Convertir PPTX a PDF`. El selector lista los archivos `.pptx` de `salidas/` ordenados desde el más reciente. Selecciona uno y pulsa `Convertir a PDF`. Si ya tiene PDF, puedes regenerarlo; el PDF resultante queda junto al PPTX y se puede descargar desde la interfaz. Esta conversión utiliza LibreOffice instalado en el entorno.
+
 Para revisar parser, layouts, estilos, proveedores y flujo de interfaz desde el entorno del proyecto:
 
 ```bash

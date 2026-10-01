@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -40,34 +41,32 @@ def convertir_pptx_a_pdf(pptx: Path, salida_pdf: Path | None = None) -> Resultad
     salida_pdf.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        proceso = subprocess.run(
-            [
-                comando,
-                "--headless",
-                "--convert-to",
-                "pdf",
-                "--outdir",
-                str(salida_pdf.parent),
-                str(pptx),
-            ],
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
+        with tempfile.TemporaryDirectory(
+            prefix=".presentaciones_pdf_", dir=salida_pdf.parent
+        ) as temporal:
+            proceso = subprocess.run(
+                [
+                    comando,
+                    "--headless",
+                    "--convert-to",
+                    "pdf",
+                    "--outdir",
+                    temporal,
+                    str(pptx),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            generado = Path(temporal) / f"{pptx.stem}.pdf"
+            if proceso.returncode != 0 or not generado.exists():
+                detalle = (proceso.stderr or proceso.stdout or "Error desconocido de LibreOffice").strip()
+                return ResultadoExportacion("pdf", None, False, f"No se pudo generar PDF: {detalle}")
+            generado.replace(salida_pdf)
     except subprocess.TimeoutExpired:
         return ResultadoExportacion("pdf", None, False, "LibreOffice tardo demasiado en convertir el PDF. El PPTX sigue disponible.")
     except OSError as exc:
         return ResultadoExportacion("pdf", None, False, f"No se pudo ejecutar LibreOffice: {exc}")
-
-    generado = salida_pdf.parent / f"{pptx.stem}.pdf"
-    if generado.exists() and generado != salida_pdf:
-        if salida_pdf.exists():
-            salida_pdf.unlink()
-        generado.replace(salida_pdf)
-
-    if proceso.returncode != 0 or not salida_pdf.exists():
-        detalle = (proceso.stderr or proceso.stdout or "Error desconocido de LibreOffice").strip()
-        return ResultadoExportacion("pdf", None, False, f"No se pudo generar PDF: {detalle}")
 
     return ResultadoExportacion("pdf", salida_pdf, True, f"PDF generado: {salida_pdf}")
 

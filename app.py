@@ -183,6 +183,70 @@ def firma_generacion(markdown: str, nombre: str, estilo: str, modo_imagen: str, 
         ensure_ascii=False,
     )
 
+
+def listar_presentaciones(directorio: Path = SALIDAS) -> list[Path]:
+    directorio = Path(directorio)
+    if not directorio.exists():
+        return []
+    return sorted(
+        (archivo for archivo in directorio.glob("*.pptx") if archivo.is_file()),
+        key=lambda archivo: archivo.stat().st_mtime,
+        reverse=True,
+    )
+
+
+def mostrar_convertidor_pptx() -> None:
+    st.subheader("Convertir un PowerPoint guardado a PDF")
+    st.caption("Selecciona una presentación de salidas/. También aparecen archivos creados en sesiones anteriores.")
+    presentaciones = listar_presentaciones()
+    if not presentaciones:
+        st.info(
+            "Todavía no hay archivos PPTX en salidas/. Genera una presentación y aparecerá aquí "
+            "para convertirla cuando quieras."
+        )
+        return
+
+    archivos_por_etiqueta = {
+        f"{archivo.name} · {archivo.stat().st_size / (1024 * 1024):.1f} MB": archivo
+        for archivo in presentaciones
+    }
+    seleccion_etiqueta = st.selectbox(
+        "Presentación guardada",
+        list(archivos_por_etiqueta),
+        key="pptx_existente_seleccionado",
+    )
+    seleccion = archivos_por_etiqueta[seleccion_etiqueta]
+    salida_pdf = seleccion.with_suffix(".pdf")
+    pdf_existente = salida_pdf.is_file()
+    if pdf_existente:
+        st.caption(f"Ya existe un PDF para este archivo: {salida_pdf.name}. Puedes regenerarlo para reemplazarlo.")
+        texto_boton = "Regenerar PDF"
+    else:
+        st.caption("Aún no hay PDF para esta presentación.")
+        texto_boton = "Convertir a PDF"
+
+    if st.button(texto_boton, key="convertir_pptx_guardado", type="primary"):
+        with st.spinner("Convirtiendo la presentación con LibreOffice..."):
+            resultado = convertir_pptx_a_pdf(seleccion, salida_pdf)
+        if resultado.ok and resultado.ruta:
+            st.session_state.pdf_convertido_en_sesion = str(seleccion)
+            st.success(resultado.mensaje)
+        else:
+            st.warning(resultado.mensaje)
+
+    if salida_pdf.is_file() and (
+        pdf_existente or st.session_state.get("pdf_convertido_en_sesion") == str(seleccion)
+    ):
+        with salida_pdf.open("rb") as archivo_pdf:
+            st.download_button(
+                "Descargar PDF seleccionado",
+                data=archivo_pdf,
+                file_name=salida_pdf.name,
+                mime="application/pdf",
+                key="descargar_pdf_existente",
+            )
+
+
 with st.sidebar:
     st.header("Ajustes de presentación")
     nombre_archivo = st.text_input("Nombre del archivo", value="presentacion_clase")
@@ -223,9 +287,11 @@ with st.sidebar:
         os.environ["PEXELS_API_KEY"] = pexels_key.strip()
     if pixabay_key.strip():
         os.environ["PIXABAY_API_KEY"] = pixabay_key.strip()
-    st.info("Las claves se pueden pegar aqui, guardarlas en .env o exportarlas como variables de entorno.")
+    st.info("Las claves se pueden pegar aquí, guardarlas en .env o exportarlas como variables de entorno.")
 
-tab_editor, tab_curador = st.tabs(["✦ Generador", "▧ Curador de imágenes"])
+tab_editor, tab_convertidor, tab_curador = st.tabs(
+    ["✦ Crear presentación", "⇩ Convertir PPTX a PDF", "▧ Curador de imágenes"]
+)
 
 with tab_editor:
     st.subheader("Contenido fuente")
@@ -331,6 +397,9 @@ with tab_editor:
                 file_name=pdf_generado.name,
                 mime="application/pdf",
             )
+
+with tab_convertidor:
+    mostrar_convertidor_pptx()
 
 with tab_curador:
     st.subheader("Biblioteca local")

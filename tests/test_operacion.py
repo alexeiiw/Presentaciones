@@ -12,6 +12,7 @@ from pptx import Presentation
 
 from motor import biblioteca_imagenes, proveedores_imagenes
 from motor.estilos import nombres_estilos
+from motor.exportadores import convertir_pptx_a_pdf
 from motor.generador_clases import contar_diapositivas_estimadas, generar_presentacion
 from motor.parser_markdown import parsear_markdown
 from motor.validaciones import validar_clase
@@ -289,13 +290,76 @@ Contenido:
             self.assertTrue(any(boton.label == "Generar PDF desde este PPTX" for boton in app.button))
             app.button[0].click().run()
             self.assertTrue(any(boton.label == "Generar PDF desde este PPTX" for boton in app.button))
-            app.selectbox[0].set_value("academico_formal").run()
+            selector_estilo = next(
+                selector for selector in app.selectbox if selector.label == "Estilo visual"
+            )
+            selector_estilo.set_value("Academico Formal").run()
             self.assertFalse(any(boton.label == "Descargar PPTX" for boton in app.button))
         finally:
             if previo is None:
                 salida.unlink(missing_ok=True)
             else:
                 salida.write_bytes(previo)
+
+    def test_interfaz_muestra_pptx_de_sesion_anterior_y_permite_convertirlo(self):
+        nombre = "presentacion_sesion_anterior_test"
+        pptx = ROOT / "salidas" / f"{nombre}.pptx"
+        pdf = pptx.with_suffix(".pdf")
+        pptx_anterior = pptx.read_bytes() if pptx.exists() else None
+        pdf_anterior = pdf.read_bytes() if pdf.exists() else None
+
+        def ejecutar_libreoffice_falso(comando, **kwargs):
+            directorio_salida = Path(comando[comando.index("--outdir") + 1])
+            (directorio_salida / f"{pptx.stem}.pdf").write_bytes(b"pdf-convertido")
+            return subprocess.CompletedProcess(comando, 0, stdout="", stderr="")
+
+        try:
+            Presentation().save(pptx)
+            with patch("motor.exportadores.detectar_libreoffice", return_value="soffice"), patch(
+                "motor.exportadores.subprocess.run", side_effect=ejecutar_libreoffice_falso
+            ) as conversor:
+                app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+                selector = next(select for select in app.selectbox if select.label == "Presentación guardada")
+                etiqueta = next(opcion for opcion in selector.options if nombre in opcion)
+                self.assertIn(nombre, etiqueta)
+                self.assertTrue(any("Convertir PPTX a PDF" in tab.label for tab in app.tabs))
+                boton = next(boton for boton in app.button if boton.key == "convertir_pptx_guardado")
+                boton.click().run()
+                self.assertFalse(app.exception, [str(error.message) for error in app.exception])
+                conversor.assert_called_once()
+                self.assertTrue(pdf.exists())
+                self.assertEqual(len(app.get("download_button")), 1)
+                self.assertTrue(any("PDF generado" in exito.value for exito in app.success))
+        finally:
+            if pptx_anterior is None:
+                pptx.unlink(missing_ok=True)
+            else:
+                pptx.write_bytes(pptx_anterior)
+            if pdf_anterior is None:
+                pdf.unlink(missing_ok=True)
+            else:
+                pdf.write_bytes(pdf_anterior)
+
+    def test_convertidor_permite_regenerar_pdf_de_pptx_existente(self):
+        with tempfile.TemporaryDirectory() as temporal:
+            pptx = Path(temporal) / "clase.pptx"
+            pdf = Path(temporal) / "clase.pdf"
+            Presentation().save(pptx)
+            pdf.write_bytes(b"pdf-anterior")
+
+            def convertir_falso(comando, **kwargs):
+                temporal = Path(comando[comando.index("--outdir") + 1]) / "clase.pdf"
+                temporal.write_bytes(b"pdf-actualizado")
+                return subprocess.CompletedProcess(comando, 0, stdout="", stderr="")
+
+            with patch("motor.exportadores.detectar_libreoffice", return_value="soffice"), patch(
+                "motor.exportadores.subprocess.run", side_effect=convertir_falso
+            ):
+                resultado = convertir_pptx_a_pdf(pptx, pdf)
+
+            self.assertTrue(resultado.ok, resultado.mensaje)
+            self.assertEqual(resultado.ruta, pdf)
+            self.assertEqual(pdf.read_bytes(), b"pdf-actualizado")
 
     def test_claves_locales_no_se_incluyen_en_el_diff_publicable(self):
         resultado = subprocess.run(

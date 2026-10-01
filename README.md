@@ -2,7 +2,7 @@
 
 Generador de presentaciones academicas de alto impacto usando Python, Streamlit, python-pptx, biblioteca local de imagenes, Pexels y Pixabay.
 
-Version actual: `v0.10`
+Version actual: `v0.11`
 
 ## Estructura del proyecto
 
@@ -97,7 +97,8 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 - Selecciona modo de imagen.
 - Selecciona distribucion de diapositivas.
 - Genera y descarga primero el archivo `.pptx`.
-- Si necesitas PDF, usa la opcion `Generar PDF desde este PPTX` despues de crear la presentacion.
+- Para convertir el PPTX de la generación actual, usa `Generar PDF desde este PPTX`.
+- Para convertir o volver a generar el PDF de cualquier PPTX guardado anteriormente, abre la pestaña `Convertir PPTX a PDF`, selecciona el archivo y pulsa `Convertir a PDF` o `Regenerar PDF`.
 - Los archivos quedan guardados dentro de `salidas/`.
 - Los `.pptx` y `.pdf` generados en `salidas/` estan excluidos de Git por defecto.
 - Cambiar el Markdown, nombre de archivo o configuración invalida la descarga anterior hasta regenerar, evitando descargar por error una versión desactualizada.
@@ -110,7 +111,7 @@ Con las dependencias instaladas desde `requirements.txt`, ejecuta:
 python -m unittest discover -s tests -v
 ```
 
-La suite revisa la validación del ejemplo, parser, layouts y estilos, reemplazo de PPTX, biblioteca/proveedores de imágenes, rutas locales e integración de generación con Streamlit.
+La suite revisa la validación del ejemplo, parser, layouts y estilos, reemplazo de PPTX, biblioteca/proveedores de imágenes, rutas locales, integración de generación con Streamlit y conversión de archivos PPTX guardados.
 
 ## Imagenes Locales
 
@@ -211,9 +212,15 @@ Revisa `FORMATO_CLASE.md` y `ejemplos/redes_computadoras.md`.
 
 Antes de generar, valida el checklist de calidad del formato para evitar diapositivas vacias, temas inconclusos o layouts repetitivos.
 
-La interfaz muestra ahora esta revisión automáticamente y permite generar con recomendaciones, bloqueando solo errores que impedirían una salida útil. El PPTX se reemplaza al generar con el mismo nombre para facilitar iteraciones.
+La interfaz muestra ahora esta revisión automáticamente y permite generar con recomendaciones, bloqueando solo errores que impedirían una salida útil. El PPTX se reemplaza al generar con el mismo nombre para facilitar iteraciones. La pestaña `Convertir PPTX a PDF` permite seleccionar presentaciones persistidas en `salidas/` en una sesión posterior.
 
 ## Historial de Cambios
+
+### v0.11
+
+- Se agregó una pestaña independiente para listar, seleccionar y convertir a PDF cualquier PPTX guardado en `salidas/`, incluso si se generó en otra sesión.
+- Si el PDF ya existe, la interfaz permite regenerarlo y descargarlo desde esa misma pestaña.
+- Se actualizó la guía operativa y se añadieron pruebas automatizadas del flujo de conversión posterior.
 
 ### v0.10
 
