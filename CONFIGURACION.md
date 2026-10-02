@@ -45,6 +45,8 @@ Si cambias el contenido, estilo, imágenes, distribución o nombre después de u
 
 Para convertir un PPTX de una sesión anterior, abre la pestaña `Convertir PPTX a PDF`. El selector lista los archivos `.pptx` de `salidas/` ordenados desde el más reciente. Selecciona uno y pulsa `Convertir a PDF`. Si ya tiene PDF, puedes regenerarlo; el PDF resultante queda junto al PPTX y se puede descargar desde la interfaz. Esta conversión utiliza LibreOffice instalado en el entorno.
 
+Después de generar una presentación, la sección de descargas ofrece este flujo para el PPTX actual: `1. Descargar PowerPoint (.pptx)`, `2. Convertir este PPTX a PDF` y `Descargar PDF para presentar`. El archivo PDF se puede usar en una computadora que no tenga Microsoft Office. LibreOffice debe estar instalado en el entorno donde corre esta aplicación.
+
 Para revisar parser, layouts, estilos, proveedores y flujo de interfaz desde el entorno del proyecto:
 
 ```bash

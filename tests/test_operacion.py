@@ -311,7 +311,15 @@ Contenido:
     def test_interfaz_abre_valida_y_genera_con_el_flujo_normal(self):
         nombre_prueba = "prueba_interfaz_automatizada"
         salida = ROOT / "salidas" / f"{nombre_prueba}.pptx"
+        salida_pdf = salida.with_suffix(".pdf")
         previo = salida.read_bytes() if salida.exists() else None
+        previo_pdf = salida_pdf.read_bytes() if salida_pdf.exists() else None
+
+        def ejecutar_libreoffice_falso(comando, **kwargs):
+            carpeta_salida = Path(comando[comando.index("--outdir") + 1])
+            (carpeta_salida / salida_pdf.name).write_bytes(b"pdf-generado")
+            return subprocess.CompletedProcess(comando, 0, stdout="", stderr="")
+
         try:
             app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
             self.assertFalse(app.exception, [str(error.message) for error in app.exception])
@@ -323,13 +331,21 @@ Contenido:
             self.assertTrue(any("Presentacion generada" in aviso.value for aviso in app.success))
             self.assertTrue(salida.exists())
             self.assertTrue(Presentation(salida).slides)
+            self.assertEqual(len(app.get("download_button")), 1)
+            self.assertTrue(any(boton.key == "convertir_pptx_actual" for boton in app.button))
             app.text_input[0].set_value("otro_nombre").run()
             self.assertTrue(any("configuración cambió" in aviso.value for aviso in app.info))
             self.assertFalse(any(boton.label.startswith("Descargar") for boton in app.button))
             app.text_input[0].set_value(nombre_prueba).run()
-            self.assertTrue(any(boton.label == "Generar PDF desde este PPTX" for boton in app.button))
-            app.button[0].click().run()
-            self.assertTrue(any(boton.label == "Generar PDF desde este PPTX" for boton in app.button))
+            self.assertTrue(any(boton.key == "convertir_pptx_actual" for boton in app.button))
+            with patch("motor.exportadores.detectar_libreoffice", return_value="soffice"), patch(
+                "motor.exportadores.subprocess.run", side_effect=ejecutar_libreoffice_falso
+            ):
+                boton_pdf = next(boton for boton in app.button if boton.key == "convertir_pptx_actual")
+                boton_pdf.click().run()
+                self.assertFalse(app.exception, [str(error.message) for error in app.exception])
+                self.assertTrue(salida_pdf.exists())
+                self.assertGreaterEqual(len(app.get("download_button")), 2)
             selector_estilo = next(
                 selector for selector in app.selectbox if selector.label == "Estilo visual"
             )
@@ -340,6 +356,10 @@ Contenido:
                 salida.unlink(missing_ok=True)
             else:
                 salida.write_bytes(previo)
+            if previo_pdf is None:
+                salida_pdf.unlink(missing_ok=True)
+            else:
+                salida_pdf.write_bytes(previo_pdf)
 
     def test_curador_muestra_galeria_seleccion_multiple_y_acciones_lote(self):
         with tempfile.TemporaryDirectory() as temporal:

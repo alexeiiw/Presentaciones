@@ -2,7 +2,7 @@
 
 Generador de presentaciones academicas de alto impacto usando Python, Streamlit, python-pptx, biblioteca local de imagenes, Pexels y Pixabay.
 
-Version actual: `v0.12`
+Version actual: `v1.0`
 
 ## Estructura del proyecto
 
@@ -96,8 +96,8 @@ python generar_desde_md.py ejemplos/redes_computadoras.md --salida salidas/redes
 - Selecciona estilo visual.
 - Selecciona modo de imagen.
 - Selecciona distribucion de diapositivas.
-- Genera y descarga primero el archivo `.pptx`.
-- Para convertir el PPTX de la generación actual, usa `Generar PDF desde este PPTX`.
+- Descarga el PowerPoint con `1. Descargar PowerPoint (.pptx)`.
+- Si la computadora donde presentarás no tiene Microsoft Office, pulsa `2. Convertir este PPTX a PDF` y descarga el resultado con `Descargar PDF para presentar`. Esta conversión usa LibreOffice en el entorno del generador.
 - Para convertir o volver a generar el PDF de cualquier PPTX guardado anteriormente, abre la pestaña `Convertir PPTX a PDF`, selecciona el archivo y pulsa `Convertir a PDF` o `Regenerar PDF`.
 - Los archivos quedan guardados dentro de `salidas/`.
 - Los `.pptx` y `.pdf` generados en `salidas/` estan excluidos de Git por defecto.
@@ -215,6 +215,13 @@ Antes de generar, valida el checklist de calidad del formato para evitar diaposi
 La interfaz muestra ahora esta revisión automáticamente y permite generar con recomendaciones, bloqueando solo errores que impedirían una salida útil. El PPTX se reemplaza al generar con el mismo nombre para facilitar iteraciones. La pestaña `Convertir PPTX a PDF` permite seleccionar presentaciones persistidas en `salidas/` en una sesión posterior.
 
 ## Historial de Cambios
+
+### v1.0
+
+- Se declara estable la primera versión madura del flujo completo de preparación de presentaciones.
+- La sección de descargas muestra en orden los pasos para descargar el PPTX, convertir ese PPTX a PDF y descargar el PDF para presentarlo en computadoras sin Microsoft Office.
+- Se documentaron las opciones de conversión de la generación actual y de presentaciones guardadas de sesiones anteriores.
+- Se conserva y documenta el curador de imágenes con galería, selección y acciones masivas.
 
 ### v0.12
 

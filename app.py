@@ -410,31 +410,37 @@ with tab_editor:
         )
     if pptx_generado and pptx_generado.exists():
         st.divider()
-        st.subheader("Descargas")
+        st.subheader("Descargar o convertir la presentación")
+        st.caption("Primero descarga el PowerPoint. Si la computadora no tiene Microsoft Office, genera y descarga también el PDF.")
         with open(pptx_generado, "rb") as archivo:
             st.download_button(
-                "Descargar PPTX",
+                "1. Descargar PowerPoint (.pptx)",
                 data=archivo,
                 file_name=pptx_generado.name,
                 mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                key="descargar_pptx_generado",
             )
-        st.info("El PDF se genera después del PPTX. Revisa visualmente el PDF antes de publicarlo porque LibreOffice puede variar levemente la fidelidad.")
-        if st.button("Generar PDF desde este PPTX"):
-            resultado_pdf = convertir_pptx_a_pdf(pptx_generado)
+        col_convertir, col_nota = st.columns([1, 2])
+        if col_convertir.button("2. Convertir este PPTX a PDF", type="primary", key="convertir_pptx_actual"):
+            with st.spinner("Convirtiendo el PowerPoint a PDF con LibreOffice..."):
+                resultado_pdf = convertir_pptx_a_pdf(pptx_generado)
             if resultado_pdf.ok and resultado_pdf.ruta:
                 st.session_state.pdf_generado = str(resultado_pdf.ruta)
                 st.success(resultado_pdf.mensaje)
             else:
                 st.warning(resultado_pdf.mensaje)
+        col_nota.caption("La conversión usa LibreOffice; no requiere tener Microsoft Office instalado en la computadora donde presentarás.")
 
     pdf_generado = Path(st.session_state.pdf_generado) if st.session_state.pdf_generado else None
     if pdf_generado and pdf_generado.exists():
+        st.markdown("**Paso 3 · Descargar el PDF**")
         with open(pdf_generado, "rb") as archivo_pdf:
             st.download_button(
-                "Descargar PDF",
+                "Descargar PDF para presentar",
                 data=archivo_pdf,
                 file_name=pdf_generado.name,
                 mime="application/pdf",
+                key="descargar_pdf_generado",
             )
 
 with tab_convertidor:
