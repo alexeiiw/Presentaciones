@@ -92,6 +92,36 @@ def actualizar_estado(indice: int, estado: str) -> None:
         guardar_index(registros)
 
 
+def actualizar_estados(indices: list[int], estado: str) -> int:
+    if estado not in {"pendiente", "aprobada", "favorita", "rechazada"}:
+        raise ValueError(f"Estado de imagen no válido: {estado}")
+    registros = leer_index()
+    actualizados = 0
+    for indice in set(indices):
+        if 0 <= indice < len(registros):
+            registros[indice]["estado"] = estado
+            actualizados += 1
+    if actualizados:
+        guardar_index(registros)
+    return actualizados
+
+
+def actualizar_estados_archivos(archivos: list[str], estado: str) -> int:
+    if estado not in {"pendiente", "aprobada", "favorita", "rechazada"}:
+        raise ValueError(f"Estado de imagen no válido: {estado}")
+    rutas_objetivo = {str(Path(archivo).resolve()) for archivo in archivos}
+    registros = leer_index()
+    actualizados = 0
+    for registro in registros:
+        ruta = _resolver_archivo(registro.get("archivo", ""))
+        if ruta and str(ruta) in rutas_objetivo:
+            registro["estado"] = estado
+            actualizados += 1
+    if actualizados:
+        guardar_index(registros)
+    return actualizados
+
+
 def _normalizar_keyword(keyword: str) -> str:
     texto = unicodedata.normalize("NFKD", keyword.lower().strip())
     texto = "".join(caracter for caracter in texto if not unicodedata.combining(caracter))

@@ -1,12 +1,21 @@
 from pathlib import Path
+import base64
+from html import escape
 import json
 import os
 import re
+from io import BytesIO
 
 import streamlit as st
 from dotenv import load_dotenv
+from PIL import Image
 
-from motor.biblioteca_imagenes import actualizar_estado, leer_index
+from motor.biblioteca_imagenes import (
+    _resolver_archivo as resolver_archivo_biblioteca,
+    actualizar_estado,
+    actualizar_estados_archivos,
+    leer_index,
+)
 from motor.estilos import nombres_estilos
 from motor.exportadores import convertir_pptx_a_pdf
 from motor.generador_clases import contar_diapositivas_estimadas, generar_presentacion
@@ -139,6 +148,16 @@ st.markdown(
     div[data-testid="stTabs"] button { font-weight: 600; }
     div[data-testid="stExpander"] { border-radius: 12px; }
     .block-container { padding-top: 1.6rem; padding-bottom: 2.5rem; }
+    .image-gallery-card { position: relative; overflow: hidden; border-radius: 10px; }
+    .image-gallery-card img { display: block; width: 100%; height: 190px; object-fit: cover; }
+    .image-metadata-tooltip {
+        position: absolute; inset: auto 0 0; max-height: 100%; overflow-y: auto;
+        padding: .8rem; color: #fff; background: rgba(15, 23, 42, .94);
+        font-size: .82rem; line-height: 1.5; opacity: 0; visibility: hidden;
+        transition: opacity .16s ease; overflow-wrap: anywhere;
+    }
+    .image-gallery-card:hover .image-metadata-tooltip,
+    .image-gallery-card:focus-within .image-metadata-tooltip { opacity: 1; visibility: visible; }
     </style>
     <div class="main-title">
         <h1>Generador de presentaciones academicas</h1>
@@ -182,6 +201,26 @@ def firma_generacion(markdown: str, nombre: str, estilo: str, modo_imagen: str, 
         [markdown, normalizar_nombre_archivo(nombre), estilo, modo_imagen, distribucion],
         ensure_ascii=False,
     )
+
+
+def imagen_galeria_data_uri(ruta: Path) -> str:
+    with Image.open(ruta) as imagen:
+        imagen.thumbnail((480, 360))
+        if imagen.mode not in {"RGB", "L"}:
+            imagen = imagen.convert("RGB")
+        elif imagen.mode == "L":
+            imagen = imagen.convert("RGB")
+        buffer = BytesIO()
+        imagen.save(buffer, format="JPEG", quality=72, optimize=True)
+    return "data:image/jpeg;base64," + base64.b64encode(buffer.getvalue()).decode("ascii")
+
+
+def actualizar_seleccion_imagen(indice: int) -> None:
+    seleccionadas = st.session_state.setdefault("imagenes_seleccionadas", set())
+    if st.session_state.get(f"seleccionar_imagen_{indice}", False):
+        seleccionadas.add(indice)
+    else:
+        seleccionadas.discard(indice)
 
 
 def listar_presentaciones(directorio: Path = SALIDAS) -> list[Path]:
@@ -402,23 +441,33 @@ with tab_convertidor:
     mostrar_convertidor_pptx()
 
 with tab_curador:
-    st.subheader("Biblioteca local")
+    st.subheader("Galería de imágenes")
     registros = leer_index()
     if not registros:
-        st.info("Aun no hay imagenes descargadas en la biblioteca local.")
+        st.info("Aún no hay imágenes descargadas en la biblioteca local.")
     else:
-        st.caption("Marca como favorita o aprobada para priorizarla. Marca como rechazada para excluirla de futuras presentaciones.")
+        st.caption(
+            "Selecciona varias miniaturas para aprobarlas o rechazarlas de una vez. "
+            "Pasa el cursor sobre una imagen para ver sus datos."
+        )
         estados = ["pendiente", "aprobada", "favorita", "rechazada"]
         conteos = {estado: sum(1 for r in registros if r.get("estado", "pendiente") == estado) for estado in estados}
         st.write(
             f"Pendientes: {conteos['pendiente']} | Aprobadas: {conteos['aprobada']} | "
             f"Favoritas: {conteos['favorita']} | Rechazadas: {conteos['rechazada']}"
         )
+        if "imagenes_seleccionadas" not in st.session_state:
+            st.session_state.imagenes_seleccionadas = set()
+        rutas_por_indice = {
+            indice: str(ruta)
+            for indice, registro in enumerate(registros)
+            if (ruta := resolver_archivo_biblioteca(registro.get("archivo", "")))
+        }
         filtro = st.radio(
-            "Mostrar imagenes",
+            "Filtrar imágenes por estado",
             ["pendiente", "aprobada", "favorita", "rechazada", "todas"],
             horizontal=True,
-            index=0,
+            index=4,
         )
         registros_filtrados = [
             (indice, registro)
@@ -426,28 +475,94 @@ with tab_curador:
             if filtro == "todas" or registro.get("estado", "pendiente") == filtro
         ]
         if not registros_filtrados:
-            st.info("No hay imagenes en este filtro.")
-        for indice, registro in registros_filtrados:
-            titulo_registro = f"{indice + 1:03d} | {registro.get('keyword', 'sin keyword')} | {registro.get('proveedor', 'local')}"
-            with st.expander(titulo_registro):
-                archivo_valor = registro.get("archivo", "")
-                archivo = Path(archivo_valor) if archivo_valor else None
-                col_img, col_meta = st.columns([1, 2])
-                if archivo and archivo.exists() and archivo.is_file():
-                    col_img.image(str(archivo), use_container_width=True)
-                else:
-                    col_img.warning("Archivo no encontrado")
-                col_meta.write(f"**Archivo:** `{registro.get('archivo', '')}`")
-                col_meta.write(f"**Usos:** {registro.get('usos', 0)}")
-                if registro.get("url"):
-                    col_meta.write(f"**URL:** {registro.get('url')}")
-                estado_actual = registro.get("estado", "pendiente")
-                estado = col_meta.selectbox(
-                    "Estado",
-                    estados,
-                    index=estados.index(estado_actual) if estado_actual in estados else 0,
-                    key=f"estado_imagen_{indice}",
-                )
-                if col_meta.button("Guardar estado", key=f"guardar_estado_{indice}"):
-                    actualizar_estado(indice, estado)
-                    st.success("Estado actualizado.")
+            st.info("No hay imágenes en este filtro.")
+        else:
+            indices_visibles = {indice for indice, _ in registros_filtrados}
+            seleccionadas = st.session_state.imagenes_seleccionadas
+            col_seleccion, col_acciones = st.columns([1, 2])
+            with col_seleccion:
+                seleccionar, limpiar = st.columns(2)
+                if seleccionar.button("Seleccionar visibles", key="seleccionar_todas_imagenes"):
+                    seleccionadas.update(indices_visibles)
+                    for indice in indices_visibles:
+                        st.session_state[f"seleccionar_imagen_{indice}"] = True
+                    st.rerun()
+                if limpiar.button("Limpiar selección", key="limpiar_seleccion_imagenes"):
+                    seleccionadas.clear()
+                    for indice in range(len(registros)):
+                        st.session_state[f"seleccionar_imagen_{indice}"] = False
+                    st.rerun()
+
+            with col_acciones:
+                st.caption(f"{len(seleccionadas)} imágenes seleccionadas")
+                masiva_1, masiva_2, masiva_3 = st.columns(3)
+                if masiva_1.button("Aprobar seleccionadas", disabled=not seleccionadas, key="aprobar_imagenes_masivo"):
+                    rutas = [rutas_por_indice[i] for i in seleccionadas if i in rutas_por_indice]
+                    cantidad = actualizar_estados_archivos(rutas, "aprobada")
+                    seleccionadas.clear()
+                    for indice in range(len(registros)):
+                        st.session_state[f"seleccionar_imagen_{indice}"] = False
+                    st.success(f"Se aprobaron {cantidad} imágenes.")
+                    st.rerun()
+                if masiva_2.button("Marcar favoritas", disabled=not seleccionadas, key="favoritas_imagenes_masivo"):
+                    rutas = [rutas_por_indice[i] for i in seleccionadas if i in rutas_por_indice]
+                    cantidad = actualizar_estados_archivos(rutas, "favorita")
+                    seleccionadas.clear()
+                    for indice in range(len(registros)):
+                        st.session_state[f"seleccionar_imagen_{indice}"] = False
+                    st.success(f"Se marcaron {cantidad} imágenes como favoritas.")
+                    st.rerun()
+                if masiva_3.button("Rechazar seleccionadas", disabled=not seleccionadas, key="rechazar_imagenes_masivo"):
+                    rutas = [rutas_por_indice[i] for i in seleccionadas if i in rutas_por_indice]
+                    cantidad = actualizar_estados_archivos(rutas, "rechazada")
+                    seleccionadas.clear()
+                    for indice in range(len(registros)):
+                        st.session_state[f"seleccionar_imagen_{indice}"] = False
+                    st.success(f"Se rechazaron {cantidad} imágenes.")
+                    st.rerun()
+
+            columnas = st.columns(4)
+            for posicion, (indice, registro) in enumerate(registros_filtrados):
+                columna = columnas[posicion % len(columnas)]
+                archivo = Path(rutas_por_indice[indice]) if indice in rutas_por_indice else None
+                with columna.container(border=True):
+                    st.checkbox(
+                        "Seleccionar",
+                        value=indice in seleccionadas,
+                        key=f"seleccionar_imagen_{indice}",
+                        label_visibility="collapsed",
+                        on_change=actualizar_seleccion_imagen,
+                        args=(indice,),
+                    )
+                    if archivo:
+                        datos = (
+                            f"Descripción: {registro.get('keyword') or 'Sin descripción'}\n"
+                            f"Proveedor: {registro.get('proveedor', 'local')}\n"
+                            f"Archivo: {registro.get('archivo', '')}\n"
+                            f"Usos: {registro.get('usos', 0)}\n"
+                            f"Estado: {registro.get('estado', 'pendiente')}"
+                        )
+                        if registro.get("url"):
+                            datos += f"\nURL: {registro['url']}"
+                        origen_imagen = escape(registro.get("keyword") or "Imagen de la biblioteca", quote=True)
+                        st.markdown(
+                            "<div class='image-gallery-card' tabindex='0'>"
+                            f"<img src='{imagen_galeria_data_uri(archivo)}' alt='{origen_imagen}'>"
+                            "<div class='image-metadata-tooltip'>"
+                            + datos.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br>")
+                            + "</div></div>",
+                            unsafe_allow_html=True,
+                        )
+                    else:
+                        st.warning("Archivo no encontrado")
+                    st.caption(f"Estado: {registro.get('estado', 'pendiente')} · Usos: {registro.get('usos', 0)}")
+                    estado_actual = registro.get("estado", "pendiente")
+                    estado = st.selectbox(
+                        "Cambiar estado",
+                        estados,
+                        index=estados.index(estado_actual) if estado_actual in estados else 0,
+                        key=f"estado_imagen_{indice}",
+                    )
+                    if st.button("Guardar estado", key=f"guardar_estado_{indice}"):
+                        actualizar_estado(indice, estado)
+                        st.success("Estado actualizado.")

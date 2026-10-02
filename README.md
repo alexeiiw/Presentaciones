@@ -2,7 +2,7 @@
 
 Generador de presentaciones academicas de alto impacto usando Python, Streamlit, python-pptx, biblioteca local de imagenes, Pexels y Pixabay.
 
-Version actual: `v0.11`
+Version actual: `v0.12`
 
 ## Estructura del proyecto
 
@@ -163,7 +163,7 @@ Por defecto, las imagenes descargadas y `biblioteca_imagenes/index.json` no se s
 
 El archivo `biblioteca_imagenes/index.example.json` muestra la estructura esperada del indice.
 
-Desde la pestaña `Curador de imagenes` puedes marcar cada imagen como `favorita`, `aprobada`, `pendiente` o `rechazada`. El curador muestra primero las pendientes y permite filtrar por estado. El generador prioriza favoritas y aprobadas, y excluye rechazadas.
+Desde la pestaña `Curador de imagenes` puedes revisar todas las imágenes en una galería, filtrar por estado y seleccionarlas individualmente o en lote. Usa las acciones masivas para aprobar, marcar como favoritas o rechazar la selección. Al pasar el cursor por una miniatura se muestra la keyword/descripción, proveedor, archivo, usos, estado y URL disponibles. El generador prioriza favoritas y aprobadas, y excluye rechazadas.
 
 ## Distribuciones
 
@@ -215,6 +215,13 @@ Antes de generar, valida el checklist de calidad del formato para evitar diaposi
 La interfaz muestra ahora esta revisión automáticamente y permite generar con recomendaciones, bloqueando solo errores que impedirían una salida útil. El PPTX se reemplaza al generar con el mismo nombre para facilitar iteraciones. La pestaña `Convertir PPTX a PDF` permite seleccionar presentaciones persistidas en `salidas/` en una sesión posterior.
 
 ## Historial de Cambios
+
+### v0.12
+
+- Se renovó el curador como galería visual con filtros y selección individual o de todas las imágenes visibles.
+- Se añadieron acciones masivas para aprobar, marcar favoritas o rechazar imágenes.
+- Las miniaturas muestran al pasar el cursor la keyword/descripción y metadatos disponibles de proveedor, archivo, usos, estado y URL.
+- Se añadieron pruebas para cambios de estado masivos y visualización de la galería.
 
 ### v0.11
 

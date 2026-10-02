@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from pptx import Presentation
+from PIL import Image
 
 from motor import biblioteca_imagenes, proveedores_imagenes
 from motor.estilos import nombres_estilos
@@ -268,6 +269,45 @@ Contenido:
                 self.assertEqual(biblioteca_imagenes.buscar_en_biblioteca("redes y seguridad"), imagen.resolve())
                 self.assertEqual(biblioteca_imagenes._normalizar_keyword("ciberseguridad y redes"), "ciberseguridad_y_redes")
 
+    def test_actualiza_estados_masivos_sin_omitir_registros(self):
+        with tempfile.TemporaryDirectory() as temporal:
+            raiz = Path(temporal)
+            indice = raiz / "biblioteca_imagenes" / "index.json"
+            with patch.multiple(
+                biblioteca_imagenes,
+                BASE_BIBLIOTECA=raiz / "biblioteca_imagenes",
+                DIR_IMAGENES=raiz / "biblioteca_imagenes" / "imagenes",
+                INDEX_PATH=indice,
+            ):
+                (raiz / "biblioteca_imagenes" / "imagenes").mkdir(parents=True)
+                (raiz / "biblioteca_imagenes" / "imagenes" / "uno.jpg").write_bytes(b"uno")
+                (raiz / "biblioteca_imagenes" / "imagenes" / "dos.jpg").write_bytes(b"dos")
+                biblioteca_imagenes.guardar_index(
+                    [
+                        {"archivo": "biblioteca_imagenes/imagenes/uno.jpg", "estado": "pendiente"},
+                        {"archivo": "biblioteca_imagenes/imagenes/dos.jpg", "estado": "pendiente"},
+                        {"archivo": "biblioteca_imagenes/imagenes/tres.jpg", "estado": "aprobada"},
+                    ]
+                )
+                uno = raiz / "biblioteca_imagenes" / "imagenes" / "uno.jpg"
+                dos = raiz / "biblioteca_imagenes" / "imagenes" / "dos.jpg"
+                total = biblioteca_imagenes.actualizar_estados_archivos([str(uno), str(dos), str(uno)], "rechazada")
+                estados = [registro["estado"] for registro in biblioteca_imagenes.leer_index()]
+                self.assertEqual(total, 2)
+                self.assertEqual(estados, ["rechazada", "rechazada", "aprobada"])
+                with self.assertRaises(ValueError):
+                    biblioteca_imagenes.actualizar_estados_archivos([str(uno)], "publicada")
+
+    def test_generador_de_miniaturas_produce_uri_pequeno_para_galeria(self):
+        with tempfile.TemporaryDirectory() as temporal:
+            imagen_path = Path(temporal) / "imagen.png"
+            Image.new("RGB", (1600, 1200), color=(30, 90, 150)).save(imagen_path)
+            from app import imagen_galeria_data_uri
+
+            uri = imagen_galeria_data_uri(imagen_path)
+            self.assertTrue(uri.startswith("data:image/jpeg;base64,"))
+            self.assertLess(len(uri), 12000)
+
     def test_interfaz_abre_valida_y_genera_con_el_flujo_normal(self):
         nombre_prueba = "prueba_interfaz_automatizada"
         salida = ROOT / "salidas" / f"{nombre_prueba}.pptx"
@@ -300,6 +340,52 @@ Contenido:
                 salida.unlink(missing_ok=True)
             else:
                 salida.write_bytes(previo)
+
+    def test_curador_muestra_galeria_seleccion_multiple_y_acciones_lote(self):
+        with tempfile.TemporaryDirectory() as temporal:
+            raiz = Path(temporal)
+            biblioteca = raiz / "biblioteca_imagenes"
+            imagenes = biblioteca / "imagenes"
+            imagenes.mkdir(parents=True)
+            imagen_a = imagenes / "redes_0001.jpg"
+            imagen_b = imagenes / "seguridad_0002.jpg"
+            Image.new("RGB", (40, 30), color=(20, 80, 120)).save(imagen_a)
+            Image.new("RGB", (40, 30), color=(120, 40, 80)).save(imagen_b)
+            archivo_indice = biblioteca / "index.json"
+            original_base = biblioteca_imagenes.BASE_BIBLIOTECA
+            original_imagenes = biblioteca_imagenes.DIR_IMAGENES
+            original_index = biblioteca_imagenes.INDEX_PATH
+            try:
+                with patch.multiple(
+                    biblioteca_imagenes,
+                    BASE_BIBLIOTECA=biblioteca,
+                    DIR_IMAGENES=imagenes,
+                    INDEX_PATH=archivo_indice,
+                ):
+                    biblioteca_imagenes.guardar_index(
+                        [
+                            {"keyword": "network router", "keyword_normalizada": "network_router", "archivo": str(imagen_a), "proveedor": "pexels", "url": "https://example.test/a", "usos": 1, "estado": "pendiente"},
+                            {"keyword": "cyber security", "keyword_normalizada": "cyber_security", "archivo": str(imagen_b), "proveedor": "pixabay", "url": "https://example.test/b", "usos": 2, "estado": "pendiente"},
+                        ]
+                    )
+                    with patch("app.leer_index", side_effect=biblioteca_imagenes.leer_index):
+                        app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+                        filtro = next(radio for radio in app.radio if radio.label == "Filtrar imágenes por estado")
+                        self.assertIn("todas", filtro.options)
+                        seleccionar = next(
+                            boton for boton in app.button if boton.key == "seleccionar_todas_imagenes"
+                        )
+                        seleccionar.click().run()
+                        aprobar = next(boton for boton in app.button if boton.key == "aprobar_imagenes_masivo")
+                        self.assertFalse(aprobar.disabled)
+                        aprobar.click().run()
+                        self.assertFalse(app.exception, [str(error.message) for error in app.exception])
+                        estados = [registro["estado"] for registro in biblioteca_imagenes.leer_index()]
+                        self.assertEqual(estados, ["aprobada", "aprobada"])
+            finally:
+                biblioteca_imagenes.BASE_BIBLIOTECA = original_base
+                biblioteca_imagenes.DIR_IMAGENES = original_imagenes
+                biblioteca_imagenes.INDEX_PATH = original_index
 
     def test_interfaz_muestra_pptx_de_sesion_anterior_y_permite_convertirlo(self):
         nombre = "presentacion_sesion_anterior_test"
