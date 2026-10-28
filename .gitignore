@@ -7,6 +7,7 @@ salidas/*.pdf
 temp/*.pdf
 assets/*
 !assets/.gitkeep
+!assets/kipp_icon.png
 biblioteca_imagenes/imagenes/*
 !biblioteca_imagenes/imagenes/.gitkeep
 biblioteca_imagenes/index.json

@@ -120,46 +120,344 @@ Contenido:
 """
 
 
-st.set_page_config(page_title="Generador de Presentaciones", page_icon="🎓", layout="wide")
+st.set_page_config(
+    page_title="Generador de Presentaciones",
+    page_icon=str(ROOT / "assets" / "kipp_icon.png"),
+    layout="wide",
+)
 
 st.markdown(
     """
     <style>
-    .main-title {
-        padding: 1.2rem 1.4rem;
-        border-radius: 18px;
-        background: linear-gradient(135deg, #0f172a 0%, #164e63 55%, #0891b2 100%);
-        color: white;
-        margin-bottom: 1rem;
-        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+        --k-bg: #0A0B0D;
+        --k-panel: #121417;
+        --k-elev: #171A1E;
+        --k-line: #262A2F;
+        --k-text: #E8EAED;
+        --k-muted: #8B929B;
+        --k-accent: #7FD4E8;
+        --k-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        --k-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
     }
-    .main-title h1 { margin: 0; font-size: 2.1rem; }
-    .main-title p { margin: .35rem 0 0 0; color: #cffafe; }
+
+    html, body, [data-testid="stAppViewContainer"] {
+        background: var(--k-bg);
+        color: var(--k-text);
+        font-family: var(--k-sans);
+    }
+    [data-testid="stHeader"] { background: transparent; }
+    [data-testid="stDecoration"] { display: none; }
+    [data-testid="stAppDeployButton"], #MainMenu, footer { display: none; }
+    .block-container { padding-top: 2rem; padding-bottom: 3rem; max-width: 1400px; }
+
+    h1, h2, h3, h4, h5 {
+        font-family: var(--k-sans);
+        font-weight: 300 !important;
+        color: #F2F3F5;
+        letter-spacing: -0.01em;
+    }
+
+    .stButton button p, .stDownloadButton button p,
+    [data-testid="stBaseButton-secondary"] p, [data-testid="stBaseButton-primary"] p {
+        color: inherit !important;
+        font-family: var(--k-mono);
+        font-size: .66rem;
+        font-weight: 500;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    [data-testid="stMarkdownContainer"] > p,
+    [data-testid="stMarkdownContainer"] > ul li,
+    [data-testid="stMarkdownContainer"] > ol li {
+        color: var(--k-text);
+        font-family: var(--k-sans);
+    }
+    [data-testid="stMarkdownContainer"] a { color: var(--k-accent); text-decoration: none; }
+    [data-testid="stMarkdownContainer"] a:hover { text-decoration: underline; }
+    [data-testid="stMarkdownContainer"] strong { color: #FFFFFF; font-weight: 500; }
+
+    [data-testid="stCaptionContainer"] p, .stCaption p {
+        font-family: var(--k-mono);
+        font-size: .68rem;
+        letter-spacing: .02em;
+        color: var(--k-muted);
+    }
+
+    [data-testid="stWidgetLabel"] p, .stSelectbox label p, .stTextInput label p, .stTextArea label p {
+        font-family: var(--k-mono);
+        font-size: .66rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: var(--k-muted);
+    }
+
+    /* Controles */
+    .stButton button, .stDownloadButton button,
+    [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-primary"] {
+        border-radius: 2px;
+        border: 1px solid var(--k-line);
+        background: transparent;
+        color: var(--k-text);
+        font-family: var(--k-mono);
+        font-size: .66rem;
+        font-weight: 500;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        min-height: 2.7rem;
+        padding: .35rem .8rem;
+        transition: border-color .15s ease, color .15s ease, background .15s ease;
+    }
+    .stButton button:hover, .stDownloadButton button:hover {
+        border-color: var(--k-accent);
+        color: var(--k-accent);
+        background: rgba(127, 212, 232, .06);
+    }
+    .stButton button:disabled, .stDownloadButton button:disabled {
+        color: #4A4F57;
+        border-color: #1C1F23;
+        background: transparent;
+    }
+    [data-testid="stBaseButton-primary"], .stButton button[kind="primary"] {
+        background: var(--k-accent);
+        border-color: var(--k-accent);
+        color: #06090B;
+    }
+    [data-testid="stBaseButton-primary"]:hover, .stButton button[kind="primary"]:hover {
+        background: #A6E4F2;
+        border-color: #A6E4F2;
+        color: #06090B;
+    }
+
+    [data-baseweb="input"], [data-baseweb="textarea"], [data-baseweb="base-input"],
+    [data-testid="stTextInput"] input, [data-testid="stTextArea"] textarea {
+        background: #101215 !important;
+        border-color: var(--k-line) !important;
+        border-radius: 2px !important;
+        color: var(--k-text) !important;
+        font-family: var(--k-sans) !important;
+    }
+    [data-testid="stTextArea"] textarea { font-size: .92rem !important; line-height: 1.6 !important; }
+    [data-testid="stTextInput"] input:focus, [data-testid="stTextArea"] textarea:focus {
+        border-color: var(--k-accent) !important;
+        box-shadow: 0 0 0 1px rgba(127, 212, 232, .35) !important;
+    }
+    [data-testid="stTextArea"] textarea::placeholder { color: #5A6069; }
+
+    [data-baseweb="select"] > div {
+        background: #101215 !important;
+        border-color: var(--k-line) !important;
+        border-radius: 2px !important;
+        color: var(--k-text) !important;
+    }
+    [data-baseweb="popover"] [data-baseweb="menu"] {
+        background: var(--k-panel);
+        border: 1px solid var(--k-line);
+    }
+    [data-baseweb="popover"] li { font-family: var(--k-sans); }
+
+    [data-testid="stRadio"] label p, [data-testid="stCheckbox"] label p {
+        font-family: var(--k-sans);
+        color: var(--k-text);
+    }
+
+    /* Pestañas */
+    [data-testid="stTabs"] [data-baseweb="tab-list"] {
+        gap: 2.2rem;
+        border-bottom: 1px solid var(--k-line);
+        background: transparent;
+    }
+    [data-testid="stTabs"] [data-baseweb="tab"] { background: transparent; padding: .55rem 0; }
+    [data-testid="stTabs"] [data-baseweb="tab"] p {
+        font-family: var(--k-mono);
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: var(--k-muted);
+    }
+    [data-testid="stTabs"] [aria-selected="true"] p { color: var(--k-text); }
+    [data-testid="stTabs"] [data-baseweb="tab-highlight"] { background: var(--k-accent); height: 2px; }
+    [data-testid="stTabs"] [data-baseweb="tab-border"] { display: none; }
+
+    /* Métricas y paneles */
+    [data-testid="stMetric"] {
+        background: var(--k-panel);
+        border: 1px solid var(--k-line);
+        border-radius: 2px;
+        padding: .9rem 1rem;
+    }
+    [data-testid="stMetricValue"] {
+        font-family: var(--k-mono);
+        font-weight: 400;
+        color: var(--k-text);
+        font-size: 1.5rem;
+    }
+    [data-testid="stMetricLabel"] p {
+        font-family: var(--k-mono);
+        font-size: .62rem;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: var(--k-muted);
+    }
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border-color: var(--k-line) !important;
+        border-radius: 2px !important;
+    }
+
+    /* Alertas */
+    [data-testid="stAlert"] {
+        border-radius: 2px;
+        border: 1px solid var(--k-line);
+        border-left-width: 3px;
+        background: var(--k-panel) !important;
+    }
+    [data-testid="stAlertContainer"] { background: transparent !important; }
+    [data-testid="stAlert"] p { color: var(--k-text) !important; font-size: .88rem; }
+    [data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]) { border-left-color: var(--k-accent); }
+    [data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]) { border-left-color: #5FD3A0; }
+    [data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]) { border-left-color: #E8A33D; }
+    [data-testid="stAlert"]:has([data-testid="stAlertContentError"]) { border-left-color: #E5675F; }
+
+    /* Expansores, código y divisores */
+    [data-testid="stExpander"] {
+        border: 1px solid var(--k-line);
+        border-radius: 2px;
+        background: var(--k-panel);
+    }
+    [data-testid="stExpander"] summary p {
+        font-family: var(--k-mono);
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        color: var(--k-text);
+    }
+    [data-testid="stCode"] pre {
+        background: #050607 !important;
+        border: 1px solid var(--k-line);
+        border-radius: 2px;
+    }
+    [data-testid="stDivider"] { border-color: var(--k-line) !important; }
+    hr { border-color: var(--k-line); }
+
+    /* Barra lateral */
+    [data-testid="stSidebar"] { background: #0D0F12; border-right: 1px solid var(--k-line); }
+    [data-testid="stSidebarUserContent"] { padding-top: .4rem; }
+    [data-testid="stSidebarHeader"] { padding-bottom: 0; }
+    [data-testid="stSidebar"] h2 {
+        font-family: var(--k-mono);
+        font-size: .72rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: .14em;
+        color: var(--k-text);
+    }
+    [data-testid="stSidebar"] h3 {
+        font-family: var(--k-mono);
+        font-size: .64rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        color: var(--k-muted);
+        margin-top: 1.2rem;
+    }
+    [data-testid="stSidebar"] hr { border-color: var(--k-line); }
+    [data-testid="stSidebarCollapseButton"] button { color: var(--k-muted); }
+
+    /* Monolito de entrada */
+    .kipp-header {
+        position: relative;
+        overflow: hidden;
+        background: #08090B;
+        border: 1px solid var(--k-line);
+        border-radius: 2px;
+        padding: 2.2rem 2.4rem 2.4rem;
+        margin-bottom: .9rem;
+    }
+    .kipp-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
+        background-size: 25% 100%;
+        opacity: .7;
+        pointer-events: none;
+    }
+    .kipp-header::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: var(--k-line);
+    }
+    .kipp-header h1 {
+        position: relative;
+        margin: 0;
+        font-size: clamp(1.9rem, 2.4vw, 2.5rem);
+        line-height: 1.1;
+        font-weight: 300;
+        color: #F7F8F9;
+    }
+    .kipp-header p {
+        position: relative;
+        margin: .9rem 0 0 0;
+        color: var(--k-muted);
+        font-family: var(--k-mono);
+        font-size: .72rem;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+    .kipp-plates { display: flex; gap: 6px; margin-bottom: 1.4rem; position: relative; }
+    .kipp-plates i { display: block; width: 44px; height: 3px; background: #2A2E33; }
+    .kipp-plates i:first-child { background: var(--k-accent); }
+
     .panel-note {
-        padding: .85rem 1rem;
-        border-radius: 14px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        color: #334155;
-        margin-bottom: .8rem;
+        padding: .8rem 1rem;
+        border-radius: 2px;
+        background: var(--k-panel);
+        border: 1px solid var(--k-line);
+        border-left: 2px solid var(--k-accent);
+        color: var(--k-muted);
+        font-family: var(--k-mono);
+        font-size: .72rem;
+        letter-spacing: .02em;
+        margin-bottom: 1.2rem;
     }
-    .stButton > button { border-radius: 10px; font-weight: 600; min-height: 2.7rem; }
-    div[data-testid="stMetric"] { background: #f8fafc; border: 1px solid #e2e8f0; padding: .8rem; border-radius: 12px; }
-    div[data-testid="stTabs"] button { font-weight: 600; }
-    div[data-testid="stExpander"] { border-radius: 12px; }
-    .block-container { padding-top: 1.6rem; padding-bottom: 2.5rem; }
-    .image-gallery-card { position: relative; overflow: hidden; border-radius: 10px; }
+
+    /* Galería de imágenes */
+    .image-gallery-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 2px;
+        border: 1px solid var(--k-line);
+        background: #08090B;
+        transition: border-color .16s ease;
+    }
+    .image-gallery-card:hover, .image-gallery-card:focus-within { border-color: var(--k-accent); }
     .image-gallery-card img { display: block; width: 100%; height: 190px; object-fit: cover; }
     .image-metadata-tooltip {
         position: absolute; inset: auto 0 0; max-height: 100%; overflow-y: auto;
-        padding: .8rem; color: #fff; background: rgba(15, 23, 42, .94);
-        font-size: .82rem; line-height: 1.5; opacity: 0; visibility: hidden;
+        padding: .8rem; color: var(--k-text); background: rgba(8, 9, 11, .96);
+        border-top: 1px solid var(--k-accent);
+        font-family: var(--k-mono); font-size: .7rem; line-height: 1.55;
+        opacity: 0; visibility: hidden;
         transition: opacity .16s ease; overflow-wrap: anywhere;
     }
     .image-gallery-card:hover .image-metadata-tooltip,
     .image-gallery-card:focus-within .image-metadata-tooltip { opacity: 1; visibility: visible; }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--k-bg); }
+    ::-webkit-scrollbar-thumb { background: #2A2E33; }
+    ::-webkit-scrollbar-thumb:hover { background: #3A4048; }
     </style>
-    <div class="main-title">
+    <div class="kipp-header">
+        <div class="kipp-plates" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
         <h1>Generador de presentaciones academicas</h1>
         <p>Markdown estructurado, imagenes reutilizables, estilos visuales, salida PowerPoint y PDF opcional.</p>
     </div>
@@ -544,7 +842,7 @@ with tab_curador:
                         datos = (
                             f"Descripción: {registro.get('keyword') or 'Sin descripción'}\n"
                             f"Proveedor: {registro.get('proveedor', 'local')}\n"
-                            f"Archivo: {registro.get('archivo', '')}\n"
+                            f"Archivo: {Path(registro.get('archivo', '')).name or 'sin archivo'}\n"
                             f"Usos: {registro.get('usos', 0)}\n"
                             f"Estado: {registro.get('estado', 'pendiente')}"
                         )

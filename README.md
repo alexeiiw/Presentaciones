@@ -2,7 +2,7 @@
 
 Generador de presentaciones academicas de alto impacto usando Python, Streamlit, python-pptx, biblioteca local de imagenes, Pexels y Pixabay.
 
-Version actual: `v1.0`
+Version actual: `v1.1`
 
 ## Estructura del proyecto
 
@@ -14,7 +14,8 @@ Presentaciones/
 ├── motor/                     # Modulos internos del generador
 ├── ejemplos/                  # Markdown de referencia
 ├── tests/                     # Pruebas del parser, motor e interfaz
-├── assets/                    # Assets locales
+├── assets/                    # Assets locales e icono de la interfaz
+├── .streamlit/                # Tema visual de la interfaz
 ├── biblioteca_imagenes/       # Biblioteca e indice local ignorado
 ├── salidas/                   # PPTX y PDF generados, ignorados por Git
 └── temp/                      # Archivos temporales, ignorados por Git
@@ -73,6 +74,20 @@ python maestro.py
 ```
 
 `maestro.py` es el punto de entrada recomendado para abrir la pagina web. Los modulos internos del generador se encuentran en `motor/`; `app.py` y `generar_desde_md.py` se conservan como puntos de entrada visibles.
+
+## Identidad visual de la interfaz
+
+La interfaz usa una identidad visual inspirada en KIPP (Interstellar): tema oscuro, tipografia tecnica y acento azul reactor.
+
+- Fondo `#0A0B0D`, paneles `#121417`, lineas `#262A2F`.
+- Texto `#E8EAED`, secundario `#8B929B`, acento `#7FD4E8`.
+- Inter para contenido y JetBrains Mono para etiquetas y estados, con fallback a fuentes del sistema.
+- Favicon monolito en `assets/kipp_icon.png`.
+- Cabecera monolito de cuatro placas en lugar del degradado anterior.
+
+El tema base se define en `.streamlit/config.toml`; los detalles que Streamlit no permite configurar viven en el bloque `<style>` de `app.py`.
+
+Esta identidad afecta solo a la interfaz web. Los estilos de las presentaciones generadas siguen definidos en `motor/estilos.py` y no cambian.
 
 ## Generar desde terminal
 
@@ -215,6 +230,13 @@ Antes de generar, valida el checklist de calidad del formato para evitar diaposi
 La interfaz muestra ahora esta revisión automáticamente y permite generar con recomendaciones, bloqueando solo errores que impedirían una salida útil. El PPTX se reemplaza al generar con el mismo nombre para facilitar iteraciones. La pestaña `Convertir PPTX a PDF` permite seleccionar presentaciones persistidas en `salidas/` en una sesión posterior.
 
 ## Historial de Cambios
+
+### v1.1
+
+- Se aplicó a toda la interfaz web la identidad visual KIPP: tema oscuro, acento azul reactor y cabecera monolito de cuatro placas.
+- Se incorporaron tipografía técnica (Inter y JetBrains Mono con fallback), favicon propio y estilos coherentes en pestañas, métricas, botones, alertas, formularios y galería.
+- Se desactivó el envío de estadísticas de uso de Streamlit.
+- Se mantuvieron intactos los textos, la lógica y los estilos de las presentaciones PPTX.
 
 ### v1.0
 

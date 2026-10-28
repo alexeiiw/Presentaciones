@@ -29,6 +29,21 @@ python3 -m streamlit run app.py
 
 La barra lateral de Streamlit permite pegar `PEXELS_API_KEY` y `PIXABAY_API_KEY` para la sesion actual.
 
+## Tema visual de la interfaz
+
+La interfaz usa un tema oscuro con acento azul reactor `#7FD4E8`. La configuracion base esta en `.streamlit/config.toml`:
+
+- `backgroundColor = "#0A0B0D"`
+- `secondaryBackgroundColor = "#121417"`
+- `textColor = "#E8EAED"`
+- `primaryColor = "#7FD4E8"`
+
+Los detalles que Streamlit no permite configurar (tipografia, bordes, cabecera monolito y galeria) estan en el bloque `<style>` de `app.py`. Si cambias la paleta, actualiza ambos lugares para mantener la coherencia.
+
+El favicon se guarda en `assets/kipp_icon.png`. Tambien se desactivo el envio de estadisticas de uso de Streamlit con `gatherUsageStats = false`.
+
+Esta identidad es solo de la interfaz web. Los estilos de los PPTX generados estan en `motor/estilos.py` y no dependen del tema de la aplicacion.
+
 ## Exportacion a PDF con LibreOffice
 
 Para abrir la interfaz web del proyecto, usa desde la raiz:
