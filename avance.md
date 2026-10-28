@@ -1,6 +1,6 @@
 # Avance — Identidad visual KIPP (v1.1)
 
-**Estado:** COMPLETADO — listo para publicar
+**Estado:** COMPLETADO Y PUBLICADO
 **Objetivo:** aplicar la personalidad visual de KIPP (Interstellar) a toda la interfaz web.
 **Alcance:** solo interfaz. Sin cambios de voz/microcopy. Sin estilo `kipp_monolito` para PPTX.
 **Acento:** azul reactor `#7FD4E8`.
@@ -15,7 +15,7 @@
 - [x] Pruebas (17) + compilación + dependencias
 - [x] Documentación actualizada (README, CONFIGURACION)
 - [x] Versión v1.1
-- [ ] Commit y push a GitHub
+- [x] Commit y push a GitHub (`e9fa7e5`)
 
 ## Cambios aplicados
 
@@ -52,4 +52,4 @@ Capturas revisadas en Chrome a 1440 px con las tres pestañas y la galería semb
 - **Interfaz:** CSS y cabecera monolito aplicados en `app.py`.
 - **Correcciones tras revisión:** alertas, contraste de botones, peso de títulos, marcos sobrantes de Streamlit, salto de etiquetas y ruta en el tooltip.
 - **Documentación:** README y CONFIGURACION actualizados; versión v1.1.
-- **Publicación:** pendiente de commit y push.
+- **Publicación:** commit `e9fa7e5` publicado en `main`; `origin/main` verificado en el mismo hash.
