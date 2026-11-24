@@ -229,6 +229,10 @@ Antes de generar, valida el checklist de calidad del formato para evitar diaposi
 
 La interfaz muestra ahora esta revisión automáticamente y permite generar con recomendaciones, bloqueando solo errores que impedirían una salida útil. El PPTX se reemplaza al generar con el mismo nombre para facilitar iteraciones. La pestaña `Convertir PPTX a PDF` permite seleccionar presentaciones persistidas en `salidas/` en una sesión posterior.
 
+## Licencia
+
+Este proyecto se distribuye bajo la licencia MIT. Consulta el archivo `LICENSE` para el texto completo.
+
 ## Historial de Cambios
 
 ### v1.1
